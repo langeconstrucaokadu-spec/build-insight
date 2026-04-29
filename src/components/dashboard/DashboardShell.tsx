@@ -87,7 +87,7 @@ const DashboardShell = () => {
       </aside>
 
       <section className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-border bg-dashboard/88 px-5 py-4 backdrop-blur-xl lg:px-8"><div className="flex items-center justify-between gap-4"><div><p className="section-kicker">{role === "admin" ? "Dashboard Administrativo" : "Dashboard do Cliente"}</p><h1 className="font-display text-3xl font-bold">Gestão de obras</h1></div><Button variant="outline" onClick={signOut} className="lg:hidden"><LogOut className="size-4" /></Button></div></header>
+        <header className="sticky top-0 z-30 border-b border-border bg-dashboard/90 px-5 py-4 backdrop-blur-xl lg:px-8"><div className="flex items-center justify-between gap-4"><div><p className="section-kicker">{role === "admin" ? "Dashboard Administrativo" : "Dashboard do Cliente"}</p><h1 className="font-display text-3xl font-bold">Gestão de obras</h1></div><Button variant="outline" onClick={signOut} className="lg:hidden"><LogOut className="size-4" /></Button></div></header>
 
         <div className="mx-auto max-w-7xl space-y-8 px-5 py-8 lg:px-8">
           <section id="overview" className="grid gap-5 md:grid-cols-3">

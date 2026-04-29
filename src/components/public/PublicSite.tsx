@@ -46,7 +46,7 @@ const PublicSite = () => {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/88 backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
           <a href="#home" className="flex items-center gap-3" aria-label="Voltar ao início">
             <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow"><Building2 className="size-5" /></span>
@@ -80,7 +80,7 @@ const PublicSite = () => {
           <div className="max-w-3xl animate-enter-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-hero-foreground/25 bg-hero-foreground/10 px-4 py-2 text-sm font-semibold text-hero-foreground backdrop-blur-md"><HardHat className="size-4" /> Gestão transparente de obras</span>
             <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] text-hero-foreground md:text-7xl">Construtora Arco Forte</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-foreground/86 md:text-xl">Projetamos, executamos e acompanhamos obras com precisão técnica, comunicação clara e uma área exclusiva para clientes acompanharem cada avanço.</p>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-foreground/85 md:text-xl">Projetamos, executamos e acompanhamos obras com precisão técnica, comunicação clara e uma área exclusiva para clientes acompanharem cada avanço.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="xl" variant="hero"><a href="#obras">Ver obras em andamento <ArrowRight className="size-5" /></a></Button>
               <Button asChild size="xl" variant="heroOutline"><Link to="/login">Entrar no sistema</Link></Button>
@@ -116,14 +116,14 @@ const PublicSite = () => {
       <section id="portfolio" className="py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <p className="section-kicker">Portfólio</p><h2 className="mt-3 max-w-3xl font-display text-4xl font-bold md:text-5xl">Obras finalizadas com documentação, acabamento e pós-obra.</h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(portfolio.length ? portfolio : demoProjects.filter((p) => p.status === "completed")).map((project) => <article key={project.id} className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary shadow-soft"><img src={projectImage(project)} alt={`Galeria da obra ${project.name}`} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gallery-overlay" /><div className="absolute inset-x-0 bottom-0 p-5 text-hero-foreground"><h3 className="font-display text-2xl font-bold">{project.name}</h3><p className="mt-1 text-sm font-semibold text-hero-foreground/78">{project.location}</p></div></article>)}</div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(portfolio.length ? portfolio : demoProjects.filter((p) => p.status === "completed")).map((project) => <article key={project.id} className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary shadow-soft"><img src={projectImage(project)} alt={`Galeria da obra ${project.name}`} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gallery-overlay" /><div className="absolute inset-x-0 bottom-0 p-5 text-hero-foreground"><h3 className="font-display text-2xl font-bold">{project.name}</h3><p className="mt-1 text-sm font-semibold text-hero-foreground/80">{project.location}</p></div></article>)}</div>
         </div>
       </section>
 
       <section id="contato" className="bg-foreground py-20 text-background lg:py-28">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <div><p className="font-bold uppercase tracking-[0.2em] text-accent">Contato</p><h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Vamos planejar sua próxima obra?</h2><div className="mt-8 grid gap-4 text-background/82"><p className="flex items-center gap-3"><Phone className="size-5 text-accent" /> (47) 3333-2026</p><p className="flex items-center gap-3"><Mail className="size-5 text-accent" /> contato@arcoforte.com.br</p><p className="flex items-center gap-3"><MapPin className="size-5 text-accent" /> Av. das Obras, 1200 — Joinville, SC</p></div></div>
-          <form className="grid gap-4 rounded-lg border border-background/16 bg-background/8 p-6 backdrop-blur-md" onSubmit={(event) => event.preventDefault()}><input className="form-field" placeholder="Nome" aria-label="Nome" /><input className="form-field" placeholder="Email" aria-label="Email" type="email" /><input className="form-field" placeholder="Telefone" aria-label="Telefone" /><textarea className="form-field min-h-32" placeholder="Conte brevemente sobre o projeto" aria-label="Mensagem" /><Button type="submit" variant="hero" size="lg">Enviar mensagem</Button><div className="min-h-40 rounded-lg border border-background/16 bg-map-pattern p-5 text-sm font-semibold text-background/70">Mapa de localização</div></form>
+          <div><p className="font-bold uppercase tracking-[0.2em] text-accent">Contato</p><h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Vamos planejar sua próxima obra?</h2><div className="mt-8 grid gap-4 text-background/80"><p className="flex items-center gap-3"><Phone className="size-5 text-accent" /> (47) 3333-2026</p><p className="flex items-center gap-3"><Mail className="size-5 text-accent" /> contato@arcoforte.com.br</p><p className="flex items-center gap-3"><MapPin className="size-5 text-accent" /> Av. das Obras, 1200 — Joinville, SC</p></div></div>
+          <form className="grid gap-4 rounded-lg border border-background/20 bg-background/8 p-6 backdrop-blur-md" onSubmit={(event) => event.preventDefault()}><input className="form-field" placeholder="Nome" aria-label="Nome" /><input className="form-field" placeholder="Email" aria-label="Email" type="email" /><input className="form-field" placeholder="Telefone" aria-label="Telefone" /><textarea className="form-field min-h-32" placeholder="Conte brevemente sobre o projeto" aria-label="Mensagem" /><Button type="submit" variant="hero" size="lg">Enviar mensagem</Button><div className="min-h-40 rounded-lg border border-background/20 bg-map-pattern p-5 text-sm font-semibold text-background/70">Mapa de localização</div></form>
         </div>
       </section>
     </main>

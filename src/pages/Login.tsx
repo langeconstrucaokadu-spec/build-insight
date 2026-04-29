@@ -61,8 +61,8 @@ const Login = () => {
     <main className="grid min-h-screen bg-dashboard text-foreground lg:grid-cols-[1fr_0.9fr]">
       <section className="hidden overflow-hidden bg-foreground p-10 text-background lg:flex lg:flex-col lg:justify-between">
         <Link to="/" className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-lg bg-accent text-accent-foreground"><Building2 className="size-5" /></span><span className="font-display text-xl font-bold">Arco Forte</span></Link>
-        <div className="max-w-xl animate-enter-up"><p className="font-bold uppercase tracking-[0.2em] text-accent">Área privada</p><h1 className="mt-4 font-display text-6xl font-bold leading-none">Obras, relatórios e cronogramas em um só lugar.</h1><p className="mt-6 text-lg leading-8 text-background/72">Acesso seguro para equipe administrativa e clientes acompanharem o avanço da construção com transparência.</p></div>
-        <div className="grid grid-cols-3 gap-3 text-sm text-background/72"><span>Permissões por usuário</span><span>Upload de mídia</span><span>Dashboard responsivo</span></div>
+        <div className="max-w-xl animate-enter-up"><p className="font-bold uppercase tracking-[0.2em] text-accent">Área privada</p><h1 className="mt-4 font-display text-6xl font-bold leading-none">Obras, relatórios e cronogramas em um só lugar.</h1><p className="mt-6 text-lg leading-8 text-background/70">Acesso seguro para equipe administrativa e clientes acompanharem o avanço da construção com transparência.</p></div>
+        <div className="grid grid-cols-3 gap-3 text-sm text-background/70"><span>Permissões por usuário</span><span>Upload de mídia</span><span>Dashboard responsivo</span></div>
       </section>
       <section className="flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-7 shadow-elevated">
