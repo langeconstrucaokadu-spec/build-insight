@@ -14,16 +14,255 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      construction_projects: {
+        Row: {
+          client_id: string | null
+          cover_image_url: string | null
+          created_at: string
+          current_stage: string | null
+          description: string
+          estimated_delivery_date: string | null
+          id: string
+          is_portfolio: boolean
+          is_public: boolean
+          location: string
+          name: string
+          progress: number
+          start_date: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          current_stage?: string | null
+          description: string
+          estimated_delivery_date?: string | null
+          id?: string
+          is_portfolio?: boolean
+          is_public?: boolean
+          location: string
+          name: string
+          progress?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          current_stage?: string | null
+          description?: string
+          estimated_delivery_date?: string | null
+          id?: string
+          is_portfolio?: boolean
+          is_public?: boolean
+          location?: string
+          name?: string
+          progress?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          company: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          position: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      project_reports: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          project_id: string
+          report_date: string
+          stage: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          project_id: string
+          report_date?: string
+          stage?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          project_id?: string
+          report_date?: string
+          stage?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_reports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_schedule: {
+        Row: {
+          created_at: string
+          id: string
+          planned_end_date: string
+          planned_start_date: string
+          progress: number
+          project_id: string
+          stage: string
+          status: Database["public"]["Enums"]["schedule_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          planned_end_date: string
+          planned_start_date: string
+          progress?: number
+          project_id: string
+          stage: string
+          status?: Database["public"]["Enums"]["schedule_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          planned_end_date?: string
+          planned_start_date?: string
+          progress?: number
+          project_id?: string
+          stage?: string
+          status?: Database["public"]["Enums"]["schedule_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_schedule_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_media: {
+        Row: {
+          file_url: string
+          id: string
+          media_type: Database["public"]["Enums"]["media_type"]
+          report_id: string
+          stage: string | null
+          uploaded_at: string
+        }
+        Insert: {
+          file_url: string
+          id?: string
+          media_type: Database["public"]["Enums"]["media_type"]
+          report_id: string
+          stage?: string | null
+          uploaded_at?: string
+        }
+        Update: {
+          file_url?: string
+          id?: string
+          media_type?: Database["public"]["Enums"]["media_type"]
+          report_id?: string
+          stage?: string | null
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_media_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "project_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "client"
+      media_type: "photo" | "video"
+      project_status: "planning" | "in_progress" | "completed"
+      schedule_status: "pending" | "in_progress" | "completed" | "delayed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +389,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "client"],
+      media_type: ["photo", "video"],
+      project_status: ["planning", "in_progress", "completed"],
+      schedule_status: ["pending", "in_progress", "completed", "delayed"],
+    },
   },
 } as const
