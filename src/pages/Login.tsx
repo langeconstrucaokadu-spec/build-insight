@@ -4,6 +4,7 @@ import { Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { readUserRole } from "@/lib/permissions";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -14,7 +15,11 @@ const Login = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate("/dashboard");
+      if (data.session) {
+        console.info("[auth-login] sessão existente encontrada", { userId: data.session.user.id, email: data.session.user.email });
+        readUserRole(data.session.user.id, "login-existing-session").then((role) => console.info("[auth-login] role da sessão existente", role));
+        navigate("/dashboard");
+      }
     });
   }, [navigate]);
 
@@ -38,8 +43,13 @@ const Login = () => {
         toast.success("Cadastro criado. Confira seu email para confirmar o acesso.");
         setMode("login");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        console.info("[auth-login] login por senha concluído", { userId: data.user?.id, email: data.user?.email });
+        if (data.user?.id) {
+          const roleResult = await readUserRole(data.user.id, "login-password");
+          console.info("[auth-login] role após login por senha", roleResult);
+        }
         navigate("/dashboard");
       }
     } catch (error) {
@@ -54,7 +64,15 @@ const Login = () => {
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/dashboard` });
     setLoading(false);
     if (result.error) toast.error(result.error.message);
-    if (!result.redirected && !result.error) navigate("/dashboard");
+    if (!result.redirected && !result.error) {
+      const { data } = await supabase.auth.getSession();
+      console.info("[auth-login] login Google concluído", { userId: data.session?.user.id, email: data.session?.user.email });
+      if (data.session?.user.id) {
+        const roleResult = await readUserRole(data.session.user.id, "login-google");
+        console.info("[auth-login] role após login Google", roleResult);
+      }
+      navigate("/dashboard");
+    }
   };
 
   return (
