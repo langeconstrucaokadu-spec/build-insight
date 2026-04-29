@@ -28,6 +28,15 @@ const PermissionManagement = () => {
     setUsers(data.users ?? []);
   };
 
+  const refreshUsers = async () => {
+    try {
+      await loadUsers();
+      toast.success("Lista de usuários atualizada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível atualizar usuários.");
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -77,7 +86,7 @@ const PermissionManagement = () => {
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="outline"><Link to="/dashboard"><ArrowLeft className="size-4" /> Dashboard</Link></Button>
-          <Button variant="secondary" onClick={loadUsers}><RefreshCw className="size-4" /> Atualizar</Button>
+          <Button variant="secondary" onClick={refreshUsers}><RefreshCw className="size-4" /> Atualizar</Button>
         </div>
 
         <section className="mt-6 dashboard-panel">
@@ -87,7 +96,7 @@ const PermissionManagement = () => {
           </div>
 
           <div className="mt-6 overflow-hidden rounded-lg border border-border">
-            <div className="grid hidden-cols gap-0 bg-muted px-4 py-3 text-xs font-extrabold uppercase tracking-[0.14em] text-muted-foreground md:grid md:grid-cols-[1.5fr_1.3fr_0.7fr_180px]">
+            <div className="hidden gap-0 bg-muted px-4 py-3 text-xs font-extrabold uppercase tracking-[0.14em] text-muted-foreground md:grid md:grid-cols-[1.5fr_1.3fr_0.7fr_180px]">
               <span>Usuário</span><span>Email</span><span>Permissão</span><span>Ação</span>
             </div>
             <div className="divide-y divide-border bg-card">
