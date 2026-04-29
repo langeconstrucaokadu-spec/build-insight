@@ -126,4 +126,14 @@
   .media-tile span { @apply font-bold; }
   .media-tile small { @apply text-xs font-semibold; }
   .tab-trigger { @apply gap-2 rounded-lg border border-border bg-card px-4 py-3 font-bold text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground; }
+  .upload-dropzone { @apply flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-primary/40 bg-muted px-5 py-8 text-center transition hover:border-primary hover:bg-secondary; }
+  .upload-dropzone span { @apply font-display text-lg font-bold text-foreground; }
+  .upload-dropzone small { @apply text-sm font-semibold text-muted-foreground; }
+  .selected-file-row { @apply grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold; }
+  .selected-file-row small { @apply text-xs text-muted-foreground; }
+  .media-preview-card { @apply overflow-hidden rounded-lg border border-border bg-background shadow-soft; }
+  .media-preview-card img, .media-preview-card video { @apply aspect-[4/3] w-full bg-muted object-cover; }
+  .media-preview-card div { @apply p-4; }
+  .media-preview-card strong { @apply block font-display text-base; }
+  .media-preview-card p { @apply mt-1 text-sm text-muted-foreground; }
 }

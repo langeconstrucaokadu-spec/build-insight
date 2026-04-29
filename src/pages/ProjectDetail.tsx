@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, FileText, ImageIcon, Info, Loader2, MapPin } from "lucide-react";
+import { ArrowLeft, CalendarDays, FileText, ImageIcon, Info, Loader2, MapPin, Upload } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,15 +18,19 @@ const ProjectDetail = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) return navigate("/login");
+      const session = sessionData.session;
+      if (!session) return navigate("/login");
       if (!id) return navigate("/dashboard");
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
       const { data: loadedProject } = await supabase.from("construction_projects").select("*").eq("id", id).maybeSingle();
       const { data: loadedReports } = await supabase.from("project_reports").select("*").eq("project_id", id).order("report_date", { ascending: false });
       const { data: loadedSchedule } = await supabase.from("project_schedule").select("*").eq("project_id", id).order("planned_start_date");
+      setIsAdmin(roles?.some((item) => item.role === "admin") ?? false);
       setProject(loadedProject);
       setReports(loadedReports ?? []);
       setSchedule(loadedSchedule ?? []);
@@ -47,7 +51,7 @@ const ProjectDetail = () => {
         <section className="mt-6 rounded-lg border border-border bg-card p-6 shadow-elevated lg:p-8">
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
             <div><p className="section-kicker">Página individual da obra</p><h1 className="mt-2 font-display text-4xl font-bold md:text-5xl">{currentProject.name}</h1><p className="mt-3 flex items-center gap-2 text-muted-foreground"><MapPin className="size-4" /> {currentProject.location}</p></div>
-            <span className="status-pill w-fit">{statusLabels[currentProject.status]}</span>
+            <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[currentProject.status]}</span>{isAdmin && <Button asChild variant="construction"><Link to={`/obra/${currentProject.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div>
           </div>
           <p className="mt-6 max-w-3xl leading-7 text-muted-foreground">{currentProject.description}</p>
           <div className="mt-7 grid gap-4 md:grid-cols-3"><div className="metric-card"><span>Status atual</span><strong className="text-2xl">{statusLabels[currentProject.status]}</strong><p>{"current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage}</p></div><div className="metric-card"><span>Progresso</span><strong className="text-2xl">{progress}%</strong><p>percentual concluído</p></div><div className="metric-card"><span>Relatórios</span><strong className="text-2xl">{reports.length || demoReports.length}</strong><p>atualizações registradas</p></div></div>

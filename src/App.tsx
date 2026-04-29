@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import DashboardShell from "./components/dashboard/DashboardShell.tsx";
 import ProjectDetail from "./pages/ProjectDetail.tsx";
+import ReportUpload from "./pages/ReportUpload.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<DashboardShell />} />
           <Route path="/obra/:id" element={<ProjectDetail />} />
+          <Route path="/obra/:id/relatorios/novo" element={<ReportUpload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -20,19 +20,16 @@ const DashboardShell = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<Role>("client");
-  const [userId, setUserId] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
   const [projectForm, setProjectForm] = useState(emptyProject);
-  const [reportForm, setReportForm] = useState({ project_id: "", title: "", description: "", stage: "", report_date: new Date().toISOString().slice(0, 10) });
 
   useEffect(() => {
     const load = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
       if (!session) return navigate("/login");
-      setUserId(session.user.id);
 
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
       const currentRole = roles?.some((item) => item.role === "admin") ? "admin" : "client";
@@ -62,15 +59,6 @@ const DashboardShell = () => {
     toast.success("Obra criada com sucesso.");
   };
 
-  const createReport = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const { error, data } = await supabase.from("project_reports").insert({ ...reportForm, created_by: userId }).select().single();
-    if (error) return toast.error(error.message);
-    setReports([data, ...reports]);
-    setReportForm({ ...reportForm, title: "", description: "", stage: "" });
-    toast.success("Relatório registrado.");
-  };
-
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
@@ -98,7 +86,7 @@ const DashboardShell = () => {
 
           <section className="grid gap-5 xl:grid-cols-[1fr_0.75fr]">
             <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Progresso</p><h2>Visão geral das obras</h2></div></div><div className="h-72"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartData}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" /><YAxis /><Tooltip /><Bar dataKey="progresso" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div></article>
-            <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Obra principal</p><h2>{activeProject?.name}</h2></div><span className="status-pill">{activeProject && statusLabels[activeProject.status]}</span></div><p className="mt-4 text-muted-foreground">{activeProject?.description}</p><div className="mt-6 h-3 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${activeProject?.progress ?? 0}%` }} /></div><Button asChild className="mt-6" variant="construction"><Link to={`/obra/${activeProject?.id}`}>Abrir página da obra</Link></Button></article>
+            <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Obra principal</p><h2>{activeProject?.name}</h2></div><span className="status-pill">{activeProject && statusLabels[activeProject.status]}</span></div><p className="mt-4 text-muted-foreground">{activeProject?.description}</p><div className="mt-6 h-3 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${activeProject?.progress ?? 0}%` }} /></div><div className="mt-6 flex flex-wrap gap-3"><Button asChild variant="construction"><Link to={`/obra/${activeProject?.id}`}>Abrir página da obra</Link></Button>{role === "admin" && <Button asChild variant="secondary"><Link to={`/obra/${activeProject?.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div></article>
           </section>
 
           {role === "admin" && (
@@ -109,7 +97,7 @@ const DashboardShell = () => {
           )}
 
           <section id="relatorios" className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
-            {role === "admin" && <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Upload de relatórios</p><h2>Novo relatório</h2></div><Upload className="size-5 text-primary" /></div><form onSubmit={createReport} className="mt-6 grid gap-4"><select className="auth-field" required value={reportForm.project_id} onChange={(e) => setReportForm({ ...reportForm, project_id: e.target.value })}><option value="">Selecionar obra</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select><input className="auth-field" required placeholder="Título" value={reportForm.title} onChange={(e) => setReportForm({ ...reportForm, title: e.target.value })} /><input className="auth-field" placeholder="Etapa" value={reportForm.stage} onChange={(e) => setReportForm({ ...reportForm, stage: e.target.value })} /><input className="auth-field" type="date" value={reportForm.report_date} onChange={(e) => setReportForm({ ...reportForm, report_date: e.target.value })} /><textarea className="auth-field" required placeholder="Descrição da atividade" value={reportForm.description} onChange={(e) => setReportForm({ ...reportForm, description: e.target.value })} /><Button variant="construction"><FilePlus2 className="size-4" /> Registrar relatório</Button></form></article>}
+            {role === "admin" && <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Upload de relatórios</p><h2>Novo relatório</h2></div><Upload className="size-5 text-primary" /></div><div className="mt-6 grid gap-3">{projects.map((project) => <Button key={project.id} asChild variant="secondary" className="justify-start"><Link to={`/obra/${project.id}/relatorios/novo`}><FilePlus2 className="size-4" /> {project.name}</Link></Button>)}</div></article>}
             <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Linha do tempo</p><h2>Relatórios recentes</h2></div></div><div className="mt-6 grid gap-4">{(reports.length ? reports : demoReports).map((report) => <div key={report.id} className="timeline-item"><span>{"report_date" in report ? report.report_date : report.date}</span><h3>{report.title}</h3><p>{report.description}</p></div>)}</div></article>
           </section>
 
