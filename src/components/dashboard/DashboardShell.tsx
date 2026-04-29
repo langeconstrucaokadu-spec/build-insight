@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BarChart3, Building2, CalendarDays, FilePlus2, FolderOpen, ImageIcon, Loader2, LogOut, Plus, Upload } from "lucide-react";
+import { BarChart3, Building2, CalendarDays, FilePlus2, FolderOpen, ImageIcon, Loader2, LogOut, Plus, ShieldCheck, Upload } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { readUserRole, type AppRole } from "@/lib/permissions";
 import { demoProjects, demoReports, demoSchedule, scheduleLabels, statusLabels } from "@/data/demo";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
-type Role = Database["public"]["Enums"]["app_role"];
 
 type Report = Database["public"]["Tables"]["project_reports"]["Row"];
 type Schedule = Database["public"]["Tables"]["project_schedule"]["Row"];
@@ -19,7 +19,7 @@ const emptyProject = { name: "", description: "", location: "", status: "plannin
 const DashboardShell = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<Role>("client");
+  const [role, setRole] = useState<AppRole>("client");
   const [projects, setProjects] = useState<Project[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
@@ -31,9 +31,9 @@ const DashboardShell = () => {
       const session = sessionData.session;
       if (!session) return navigate("/login");
 
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
-      const currentRole = roles?.some((item) => item.role === "admin") ? "admin" : "client";
-      setRole(currentRole);
+      const currentRole = await readUserRole(session.user.id, "dashboard");
+      console.info("[dashboard] permissão aplicada", currentRole);
+      setRole(currentRole.role);
 
       const { data: loadedProjects } = await supabase.from("construction_projects").select("*").order("created_at", { ascending: false });
       setProjects(loadedProjects ?? []);
@@ -70,7 +70,7 @@ const DashboardShell = () => {
     <main className="min-h-screen bg-dashboard text-foreground">
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-border bg-card px-5 py-6 lg:flex lg:flex-col">
         <Link to="/" className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Building2 className="size-5" /></span><span className="font-display text-xl font-bold">Arco Forte</span></Link>
-        <nav className="mt-10 grid gap-2 text-sm font-semibold"><a className="nav-active" href="#overview"><BarChart3 className="size-4" /> Dashboard</a><a className="nav-item" href="#obras"><FolderOpen className="size-4" /> Obras</a><a className="nav-item" href="#relatorios"><FilePlus2 className="size-4" /> Relatórios</a><a className="nav-item" href="#cronograma"><CalendarDays className="size-4" /> Cronograma</a><a className="nav-item" href="#galeria"><ImageIcon className="size-4" /> Galeria</a></nav>
+        <nav className="mt-10 grid gap-2 text-sm font-semibold"><a className="nav-active" href="#overview"><BarChart3 className="size-4" /> Dashboard</a><a className="nav-item" href="#obras"><FolderOpen className="size-4" /> Obras</a><a className="nav-item" href="#relatorios"><FilePlus2 className="size-4" /> Relatórios</a><a className="nav-item" href="#cronograma"><CalendarDays className="size-4" /> Cronograma</a><a className="nav-item" href="#galeria"><ImageIcon className="size-4" /> Galeria</a>{role === "admin" && <Link className="nav-item" to="/permissoes"><ShieldCheck className="size-4" /> Permissões</Link>}</nav>
         <Button className="mt-auto" variant="outline" onClick={signOut}><LogOut className="size-4" /> Sair</Button>
       </aside>
 
@@ -86,7 +86,7 @@ const DashboardShell = () => {
 
           <section className="grid gap-5 xl:grid-cols-[1fr_0.75fr]">
             <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Progresso</p><h2>Visão geral das obras</h2></div></div><div className="h-72"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartData}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" /><YAxis /><Tooltip /><Bar dataKey="progresso" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div></article>
-            <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Obra principal</p><h2>{activeProject?.name}</h2></div><span className="status-pill">{activeProject && statusLabels[activeProject.status]}</span></div><p className="mt-4 text-muted-foreground">{activeProject?.description}</p><div className="mt-6 h-3 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${activeProject?.progress ?? 0}%` }} /></div><div className="mt-6 flex flex-wrap gap-3"><Button asChild variant="construction"><Link to={`/obra/${activeProject?.id}`}>Abrir página da obra</Link></Button>{role === "admin" && <Button asChild variant="secondary"><Link to={`/obra/${activeProject?.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div></article>
+             <article className="dashboard-panel"><div className="panel-head"><div><p className="section-kicker">Obra principal</p><h2>{activeProject?.name}</h2></div><span className="status-pill">{activeProject && statusLabels[activeProject.status]}</span></div><p className="mt-4 text-muted-foreground">{activeProject?.description}</p><div className="mt-6 h-3 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${activeProject?.progress ?? 0}%` }} /></div><div className="mt-6 flex flex-wrap gap-3"><Button asChild variant="construction"><Link to={`/obra/${activeProject?.id}`}>Abrir página da obra</Link></Button>{role === "admin" && projects.length > 0 && <Button asChild variant="secondary"><Link to={`/obra/${activeProject?.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div></article>
           </section>
 
           {role === "admin" && (
