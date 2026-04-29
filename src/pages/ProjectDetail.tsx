@@ -5,11 +5,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { readUserRole } from "@/lib/permissions";
 import { demoProjects, demoReports, demoSchedule, scheduleLabels, statusLabels } from "@/data/demo";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
 type Report = Database["public"]["Tables"]["project_reports"]["Row"];
 type Schedule = Database["public"]["Tables"]["project_schedule"]["Row"];
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -26,14 +28,18 @@ const ProjectDetail = () => {
       const session = sessionData.session;
       if (!session) return navigate("/login");
       if (!id) return navigate("/dashboard");
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
-      const { data: loadedProject } = await supabase.from("construction_projects").select("*").eq("id", id).maybeSingle();
-      const { data: loadedReports } = await supabase.from("project_reports").select("*").eq("project_id", id).order("report_date", { ascending: false });
-      const { data: loadedSchedule } = await supabase.from("project_schedule").select("*").eq("project_id", id).order("planned_start_date");
-      setIsAdmin(roles?.some((item) => item.role === "admin") ?? false);
-      setProject(loadedProject);
-      setReports(loadedReports ?? []);
-      setSchedule(loadedSchedule ?? []);
+      const roleResult = await readUserRole(session.user.id, "project-detail");
+      console.info("[project-detail] permissão aplicada", roleResult);
+      setIsAdmin(roleResult.isAdmin);
+
+      if (uuidPattern.test(id)) {
+        const { data: loadedProject } = await supabase.from("construction_projects").select("*").eq("id", id).maybeSingle();
+        const { data: loadedReports } = await supabase.from("project_reports").select("*").eq("project_id", id).order("report_date", { ascending: false });
+        const { data: loadedSchedule } = await supabase.from("project_schedule").select("*").eq("project_id", id).order("planned_start_date");
+        setProject(loadedProject);
+        setReports(loadedReports ?? []);
+        setSchedule(loadedSchedule ?? []);
+      }
       setLoading(false);
     };
     load();
