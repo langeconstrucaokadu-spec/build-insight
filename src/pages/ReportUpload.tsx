@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, FilePlus2, ImageIcon, Loader2, Upload, Video } from 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { readUserRole } from "@/lib/permissions";
 import { statusLabels } from "@/data/demo";
 import { toast } from "sonner";
 
@@ -12,6 +13,7 @@ type Report = Database["public"]["Tables"]["project_reports"]["Row"];
 type Media = Database["public"]["Tables"]["report_media"]["Row"];
 
 type MediaPreview = Media & { signedUrl?: string; reportTitle?: string; reportDate?: string };
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const ReportUpload = () => {
   const { id } = useParams();
@@ -34,16 +36,20 @@ const ReportUpload = () => {
       const session = sessionData.session;
       if (!session) return navigate("/login");
       if (!id) return navigate("/dashboard");
+      if (!uuidPattern.test(id)) {
+        toast.error("Crie uma obra real antes de enviar relatórios.");
+        return navigate("/dashboard");
+      }
 
       setUserId(session.user.id);
-      const [{ data: roles }, { data: loadedProject }, { data: loadedReports }] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", session.user.id),
+      const [roleResult, { data: loadedProject }, { data: loadedReports }] = await Promise.all([
+        readUserRole(session.user.id, "report-upload"),
         supabase.from("construction_projects").select("*").eq("id", id).maybeSingle(),
         supabase.from("project_reports").select("*").eq("project_id", id).order("report_date", { ascending: false }),
       ]);
 
-      const admin = roles?.some((item) => item.role === "admin") ?? false;
-      setIsAdmin(admin);
+      console.info("[report-upload] permissão aplicada", roleResult);
+      setIsAdmin(roleResult.isAdmin);
       setProject(loadedProject);
       setReports(loadedReports ?? []);
 
