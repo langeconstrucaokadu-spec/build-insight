@@ -20,19 +20,16 @@ const DashboardShell = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<Role>("client");
-  const [userId, setUserId] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
   const [projectForm, setProjectForm] = useState(emptyProject);
-  const [reportForm, setReportForm] = useState({ project_id: "", title: "", description: "", stage: "", report_date: new Date().toISOString().slice(0, 10) });
 
   useEffect(() => {
     const load = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData.session;
       if (!session) return navigate("/login");
-      setUserId(session.user.id);
 
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
       const currentRole = roles?.some((item) => item.role === "admin") ? "admin" : "client";
@@ -60,15 +57,6 @@ const DashboardShell = () => {
     setProjects([data, ...projects]);
     setProjectForm(emptyProject);
     toast.success("Obra criada com sucesso.");
-  };
-
-  const createReport = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const { error, data } = await supabase.from("project_reports").insert({ ...reportForm, created_by: userId }).select().single();
-    if (error) return toast.error(error.message);
-    setReports([data, ...reports]);
-    setReportForm({ ...reportForm, title: "", description: "", stage: "" });
-    toast.success("Relatório registrado.");
   };
 
   const signOut = async () => {
