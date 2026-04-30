@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, RefreshCw, ShieldCheck, UserRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Loader2, RefreshCw, ShieldCheck, UserRound, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { readUserRole, type AppRole } from "@/lib/permissions";
 import { toast } from "sonner";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 type ManagedUser = {
   user_id: string;
@@ -19,6 +20,7 @@ const PermissionManagement = () => {
   const [loading, setLoading] = useState(true);
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
   const [users, setUsers] = useState<ManagedUser[]>([]);
+  const [search, setSearch] = useState("");
 
   const loadUsers = async () => {
     const { data, error } = await supabase.functions.invoke("manage-permissions", { body: { action: "list" } });
@@ -81,17 +83,20 @@ const PermissionManagement = () => {
 
   if (loading) return <main className="grid min-h-screen place-items-center bg-dashboard"><Loader2 className="size-8 animate-spin text-primary" /></main>;
 
-  return (
-    <main className="min-h-screen bg-dashboard px-5 py-6 text-foreground lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Button asChild variant="outline"><Link to="/dashboard"><ArrowLeft className="size-4" /> Dashboard</Link></Button>
-          <Button variant="secondary" onClick={refreshUsers}><RefreshCw className="size-4" /> Atualizar</Button>
-        </div>
+  const filtered = users.filter((u) => `${u.full_name} ${u.email}`.toLowerCase().includes(search.toLowerCase()));
 
-        <section className="mt-6 dashboard-panel">
+  return (
+    <DashboardLayout
+      title="Usuários e permissões"
+      kicker="Administração"
+      actions={<Button variant="secondary" onClick={refreshUsers}><RefreshCw className="size-4" /> Atualizar</Button>}
+    >
+        <section className="dashboard-panel">
           <div className="panel-head">
-            <div><p className="section-kicker">Administração</p><h1 className="font-display text-3xl font-bold">Usuários e permissões</h1></div>
+            <label className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <input className="auth-field pl-10" placeholder="Buscar por nome ou email" value={search} onChange={(e) => setSearch(e.target.value)} />
+            </label>
             <ShieldCheck className="size-6 text-primary" />
           </div>
 
@@ -100,7 +105,7 @@ const PermissionManagement = () => {
               <span>Usuário</span><span>Email</span><span>Permissão</span><span>Ação</span>
             </div>
             <div className="divide-y divide-border bg-card">
-              {users.map((user) => (
+              {filtered.map((user) => (
                 <div key={user.user_id} className="grid gap-4 px-4 py-4 md:grid-cols-[1.5fr_1.3fr_0.7fr_180px] md:items-center">
                   <div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground"><UserRound className="size-4" /></span><div><strong className="block font-display">{user.full_name}</strong><small className="text-muted-foreground">Criado em {new Date(user.created_at).toLocaleDateString("pt-BR")}</small></div></div>
                   <span className="break-all text-sm font-semibold text-muted-foreground">{user.email}</span>
@@ -111,12 +116,11 @@ const PermissionManagement = () => {
                   </Button>
                 </div>
               ))}
-              {!users.length && <div className="px-4 py-8 text-center text-muted-foreground">Nenhum usuário encontrado.</div>}
+              {!filtered.length && <div className="px-4 py-8 text-center text-muted-foreground">Nenhum usuário encontrado.</div>}
             </div>
           </div>
         </section>
-      </div>
-    </main>
+    </DashboardLayout>
   );
 };
 
