@@ -1,0 +1,81 @@
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+import { toast } from "sonner";
+
+type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
+type ProjectStatus = Project["status"];
+
+const empty = { name: "", description: "", location: "", status: "planning" as ProjectStatus, progress: 0, current_stage: "", start_date: "", estimated_delivery_date: "", is_public: true, is_portfolio: false };
+
+type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  project?: Project | null;
+  onSaved: (project: Project) => void;
+};
+
+export const ProjectFormDialog = ({ open, onOpenChange, project, onSaved }: Props) => {
+  const [form, setForm] = useState(empty);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (project) {
+      setForm({
+        name: project.name, description: project.description, location: project.location,
+        status: project.status, progress: project.progress, current_stage: project.current_stage ?? "",
+        start_date: project.start_date ?? "", estimated_delivery_date: project.estimated_delivery_date ?? "",
+        is_public: project.is_public, is_portfolio: project.is_portfolio,
+      });
+    } else {
+      setForm(empty);
+    }
+  }, [project, open]);
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    const payload = { ...form, progress: Number(form.progress), start_date: form.start_date || null, estimated_delivery_date: form.estimated_delivery_date || null, current_stage: form.current_stage || null };
+    const query = project
+      ? supabase.from("construction_projects").update(payload).eq("id", project.id).select().single()
+      : supabase.from("construction_projects").insert(payload).select().single();
+    const { data, error } = await query;
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success(project ? "Obra atualizada." : "Obra criada com sucesso.");
+    onSaved(data);
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader><DialogTitle>{project ? "Editar obra" : "Nova obra"}</DialogTitle></DialogHeader>
+        <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
+          <input className="auth-field md:col-span-2" required placeholder="Nome da obra" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <input className="auth-field" required placeholder="Localização" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+          <input className="auth-field" placeholder="Etapa atual" value={form.current_stage} onChange={(e) => setForm({ ...form, current_stage: e.target.value })} />
+          <select className="auth-field" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}>
+            <option value="planning">Planejamento</option>
+            <option value="in_progress">Em andamento</option>
+            <option value="completed">Finalizada</option>
+          </select>
+          <input className="auth-field" type="number" min={0} max={100} placeholder="Progresso %" value={form.progress} onChange={(e) => setForm({ ...form, progress: Number(e.target.value) })} />
+          <input className="auth-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+          <input className="auth-field" type="date" value={form.estimated_delivery_date} onChange={(e) => setForm({ ...form, estimated_delivery_date: e.target.value })} />
+          <textarea className="auth-field md:col-span-2 min-h-28" required placeholder="Descrição" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} /> Obra pública</label>
+          <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.is_portfolio} onChange={(e) => setForm({ ...form, is_portfolio: e.target.checked })} /> Exibir no portfólio</label>
+          <DialogFooter className="md:col-span-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button type="submit" variant="construction" disabled={saving}>{saving ? "Salvando..." : project ? "Salvar alterações" : "Criar obra"}</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ProjectFormDialog;

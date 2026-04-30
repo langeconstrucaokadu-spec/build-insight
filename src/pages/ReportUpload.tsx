@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Camera, FilePlus2, ImageIcon, Loader2, Upload, Video } from "lucide-react";
+import { Camera, FilePlus2, ImageIcon, Loader2, Upload, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { readUserRole } from "@/lib/permissions";
 import { statusLabels } from "@/data/demo";
 import { toast } from "sonner";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
 type Report = Database["public"]["Tables"]["project_reports"]["Row"];
@@ -110,14 +111,12 @@ const ReportUpload = () => {
   if (loading) return <main className="grid min-h-screen place-items-center bg-dashboard"><Loader2 className="size-8 animate-spin text-primary" /></main>;
 
   return (
-    <main className="min-h-screen bg-dashboard px-5 py-6 text-foreground lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-wrap gap-3">
-          <Button asChild variant="outline"><Link to="/dashboard"><ArrowLeft className="size-4" /> Dashboard</Link></Button>
-          {project && <Button asChild variant="secondary"><Link to={`/obra/${project.id}`}>Ver obra</Link></Button>}
-        </div>
-
-        <section className="mt-6 grid gap-5 lg:grid-cols-[0.88fr_1.12fr]">
+    <DashboardLayout
+      title="Enviar relatório"
+      kicker="Responsável técnico"
+      actions={project ? <Button asChild variant="outline"><Link to={`/obras/${project.id}`}>Ver obra</Link></Button> : null}
+    >
+        <section className="grid gap-5 lg:grid-cols-[0.88fr_1.12fr]">
           <article className="dashboard-panel">
             <div className="panel-head"><div><p className="section-kicker">Responsável técnico</p><h1 className="font-display text-3xl font-bold">Enviar relatório da obra</h1></div><FilePlus2 className="size-6 text-primary" /></div>
             {project && <div className="mt-5 rounded-lg bg-muted p-4"><strong>{project.name}</strong><p className="mt-1 text-sm text-muted-foreground">{project.location} · {statusLabels[project.status]}</p></div>}
@@ -139,8 +138,7 @@ const ReportUpload = () => {
             <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{media.map((item) => <div key={item.id} className="media-preview-card">{item.media_type === "video" ? <video controls src={item.signedUrl} /> : <img src={item.signedUrl} alt={`Mídia do relatório ${item.reportTitle ?? "da obra"}`} loading="lazy" />}<div><strong>{item.reportTitle}</strong><p>{item.stage || "Geral"} · {item.reportDate}</p></div></div>)}</div>
           </article>
         </section>
-      </div>
-    </main>
+    </DashboardLayout>
   );
 };
 
