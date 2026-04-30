@@ -46,7 +46,7 @@ const Works = () => {
   const remove = async () => {
     if (!deleting) return;
     const { error } = await supabase.from("construction_projects").delete().eq("id", deleting.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setProjects((prev) => prev.filter((p) => p.id !== deleting.id));
     toast.success("Obra excluída.");
     setDeleting(null);
