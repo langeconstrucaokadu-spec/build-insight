@@ -37,10 +37,14 @@ Deno.serve(async (req) => {
       .eq("role", "admin")
       .maybeSingle();
 
-    if (!requesterRole) return json({ error: "Apenas administradores podem gerenciar permissões." }, 403);
-
     const body = await req.json().catch(() => ({}));
-    const action = body.action as "list" | "setRole" | undefined;
+    const action = body.action as "checkRole" | "list" | "setRole" | undefined;
+
+    if (action === "checkRole") {
+      return json({ role: requesterRole ? "admin" : "client", isAdmin: Boolean(requesterRole) });
+    }
+
+    if (!requesterRole) return json({ error: "Apenas administradores podem gerenciar permissões." }, 403);
 
     if (action === "setRole") {
       const userId = String(body.userId ?? "");
