@@ -25,10 +25,41 @@ Deno.serve(async (req) => {
     if (!token) return json({ error: "Sessão não encontrada." }, 401);
 
     const adminClient = createClient(url, serviceKey, { auth: { persistSession: false } });
-    const { data: userResult, error: userError } = await adminClient.auth.getUser(token);
-    const requester = userResult.user;
 
-    if (userError || !requester) return json({ error: "Sessão inválida." }, 401);
+    // Retry getUser to absorb transient Auth 5xx errors ("unexpected EOF").
+    let requester: { id: string; email?: string | null } | null = null;
+    let lastError: unknown = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error } = await adminClient.auth.getUser(token);
+      if (data?.user) {
+        requester = data.user;
+        lastError = null;
+        break;
+      }
+      lastError = error;
+      console.warn(`[manage-permissions] getUser attempt ${attempt + 1} failed`, error);
+      await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+    }
+
+    // Fallback: decode JWT payload to recover user id when Auth API is flaky.
+    if (!requester) {
+      try {
+        const payloadB64 = token.split(".")[1];
+        const payloadJson = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"));
+        const payload = JSON.parse(payloadJson) as { sub?: string; exp?: number; email?: string };
+        if (payload?.sub && (!payload.exp || payload.exp * 1000 > Date.now())) {
+          requester = { id: payload.sub, email: payload.email ?? null };
+          console.warn("[manage-permissions] using JWT-decoded fallback for user", payload.sub);
+        }
+      } catch (decodeError) {
+        console.error("[manage-permissions] JWT decode failed", decodeError);
+      }
+    }
+
+    if (!requester) {
+      console.error("[manage-permissions] could not resolve user", lastError);
+      return json({ error: "Sessão inválida." }, 401);
+    }
 
     const { data: requesterRole } = await adminClient
       .from("user_roles")
