@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, CheckCircle2, Clock3, HardHat, Mail, MapPin, Menu, Phone, ShieldCheck, Smartphone, X } from "lucide-react";
+import { Award, ArrowRight, CheckCircle2, Clock3, HardHat, Mail, MapPin, Menu, Phone, ShieldCheck, Smartphone, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import heroImage from "@/assets/construction-hero.jpg";
+import langeLogo from "@/assets/lange-logo.jpeg";
+import jefersonImage from "@/assets/jeferson-lange.jpeg";
 import { demoProjects, statusLabels } from "@/data/demo";
+import { WhatsAppButton } from "./WhatsAppButton";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
 
 const navItems = [
   { label: "Home", href: "#home" },
   { label: "Sobre", href: "#sobre" },
+  { label: "Fundador", href: "#fundador" },
   { label: "Obras", href: "#obras" },
   { label: "Portfólio", href: "#portfolio" },
   { label: "Contato", href: "#contato" },
@@ -48,9 +52,9 @@ const PublicSite = () => {
     <main className="min-h-screen bg-background text-foreground">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
-          <a href="#home" className="flex items-center gap-3" aria-label="Voltar ao início">
-            <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow"><Building2 className="size-5" /></span>
-            <span className="font-display text-xl font-bold tracking-normal">Arco Forte</span>
+          <a href="#home" className="flex items-center gap-3" aria-label="Lange Construções — voltar ao início">
+            <img src={langeLogo} alt="Logo Lange Construções" className="size-12 rounded-lg object-contain bg-white p-1 shadow-soft md:size-14" />
+            <span className="font-display text-lg font-bold tracking-normal md:text-xl">Lange Construções</span>
           </a>
           <nav className="hidden items-center gap-8 lg:flex">
             {navItems.map((item) => <a key={item.href} className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground" href={item.href}>{item.label}</a>)}
@@ -79,8 +83,8 @@ const PublicSite = () => {
         <div className="relative mx-auto flex min-h-[calc(92vh-5rem)] max-w-7xl items-end px-5 pb-14 pt-28 lg:px-8">
           <div className="max-w-3xl animate-enter-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-hero-foreground/25 bg-hero-foreground/10 px-4 py-2 text-sm font-semibold text-hero-foreground backdrop-blur-md"><HardHat className="size-4" /> Gestão transparente de obras</span>
-            <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] text-hero-foreground md:text-7xl">Construtora Arco Forte</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-foreground/85 md:text-xl">Projetamos, executamos e acompanhamos obras com precisão técnica, comunicação clara e uma área exclusiva para clientes acompanharem cada avanço.</p>
+            <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] text-hero-foreground md:text-7xl">Lange Construções</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-foreground/85 md:text-xl">25 anos construindo obras residenciais e comerciais com qualidade, prazo e total transparência. Acompanhe cada etapa em uma área exclusiva para clientes.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="xl" variant="hero"><a href="#obras">Ver obras em andamento <ArrowRight className="size-5" /></a></Button>
               <Button asChild size="xl" variant="heroOutline"><Link to="/login">Entrar no sistema</Link></Button>
@@ -93,8 +97,52 @@ const PublicSite = () => {
         <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
           <div><p className="section-kicker">Sobre a empresa</p><h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Execução civil com método, presença e prestação de contas.</h2></div>
           <div className="space-y-7 text-lg leading-8 text-muted-foreground">
-            <p>A Arco Forte nasceu para unir engenharia criteriosa e uma experiência de acompanhamento simples para clientes. Cada obra é conduzida com rotina técnica, documentação por etapa e comunicação objetiva.</p>
+            <p>A Lange Construções une 25 anos de experiência em engenharia civil a uma experiência de acompanhamento simples e transparente para clientes. Cada obra é conduzida com rotina técnica, documentação por etapa e comunicação objetiva.</p>
             <div className="grid gap-3 sm:grid-cols-2">{values.map((value) => <div key={value} className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-soft"><CheckCircle2 className="size-5 text-accent" /><span className="font-semibold text-card-foreground">{value}</span></div>)}</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="fundador" className="border-b border-border bg-background py-20 lg:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:px-8">
+          <div className="relative mx-auto w-full max-w-md">
+            <div className="absolute -inset-4 rounded-2xl bg-gradient-to-br from-accent/30 to-primary/20 blur-2xl" aria-hidden="true" />
+            <img
+              src={jefersonImage}
+              alt="Jeferson Lange, fundador da Lange Construções"
+              loading="lazy"
+              className="relative aspect-[4/5] w-full rounded-2xl object-cover shadow-elevated"
+            />
+            <div className="relative mt-4 rounded-lg border border-border bg-card p-4 text-center shadow-soft">
+              <p className="font-display text-xl font-bold">Jeferson Lange</p>
+              <p className="text-sm font-semibold text-muted-foreground">Fundador & Diretor Técnico</p>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <p className="section-kicker">Quem está à frente</p>
+            <h2 className="font-display text-4xl font-bold md:text-5xl">25 anos transformando projetos em obras concretas.</h2>
+            <div className="space-y-5 text-lg leading-8 text-muted-foreground">
+              <p>À frente da Lange Construções, <strong className="text-foreground">Jeferson Lange</strong> acumula mais de duas décadas e meia de atuação na construção civil, conduzindo pessoalmente obras residenciais e comerciais de pequeno, médio e grande porte.</p>
+              <p>Sua trajetória é marcada pela presença em obra, pela proximidade com cada cliente e por uma gestão técnica rigorosa — entregando projetos no prazo, dentro do orçamento e com o acabamento que se espera de uma construção feita para durar.</p>
+              <p>É essa visão de longo prazo que sustenta o crescimento da empresa: equipes próprias bem treinadas, fornecedores de confiança e um padrão de qualidade que faz a Lange Construções ser indicada de cliente para cliente.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-lg border border-border bg-card p-5 text-center shadow-soft">
+                <Award className="mx-auto size-7 text-accent" />
+                <p className="mt-3 font-display text-3xl font-bold">25+</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">anos de mercado</p>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-5 text-center shadow-soft">
+                <Users className="mx-auto size-7 text-accent" />
+                <p className="mt-3 font-display text-3xl font-bold">100%</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">acompanhamento direto</p>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-5 text-center shadow-soft">
+                <ShieldCheck className="mx-auto size-7 text-accent" />
+                <p className="mt-3 font-display text-3xl font-bold">Res. & Com.</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">obras especializadas</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -122,10 +170,27 @@ const PublicSite = () => {
 
       <section id="contato" className="bg-foreground py-20 text-background lg:py-28">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <div><p className="font-bold uppercase tracking-[0.2em] text-accent">Contato</p><h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Vamos planejar sua próxima obra?</h2><div className="mt-8 grid gap-4 text-background/80"><p className="flex items-center gap-3"><Phone className="size-5 text-accent" /> (47) 3333-2026</p><p className="flex items-center gap-3"><Mail className="size-5 text-accent" /> contato@arcoforte.com.br</p><p className="flex items-center gap-3"><MapPin className="size-5 text-accent" /> Av. das Obras, 1200 — Joinville, SC</p></div></div>
+          <div>
+            <p className="font-bold uppercase tracking-[0.2em] text-accent">Contato</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Vamos planejar sua próxima obra?</h2>
+            <div className="mt-8 grid gap-4 text-background/80">
+              <p className="flex items-center gap-3"><Phone className="size-5 text-accent" /> (47) 3333-2026</p>
+              <p className="flex items-center gap-3"><Mail className="size-5 text-accent" /> contato@langeconstrucoes.com.br</p>
+              <p className="flex items-center gap-3"><MapPin className="size-5 text-accent" /> Av. das Obras, 1200 — Joinville, SC</p>
+            </div>
+            <div className="mt-10 flex items-center gap-3 border-t border-background/20 pt-6">
+              <img src={langeLogo} alt="Logo Lange Construções" className="size-12 rounded-lg bg-white object-contain p-1" />
+              <div>
+                <p className="font-display text-lg font-bold">Lange Construções</p>
+                <p className="text-sm text-background/60">© {new Date().getFullYear()} — Todos os direitos reservados</p>
+              </div>
+            </div>
+          </div>
           <form className="grid gap-4 rounded-lg border border-background/20 bg-background/8 p-6 backdrop-blur-md" onSubmit={(event) => event.preventDefault()}><input className="form-field" placeholder="Nome" aria-label="Nome" /><input className="form-field" placeholder="Email" aria-label="Email" type="email" /><input className="form-field" placeholder="Telefone" aria-label="Telefone" /><textarea className="form-field min-h-32" placeholder="Conte brevemente sobre o projeto" aria-label="Mensagem" /><Button type="submit" variant="hero" size="lg">Enviar mensagem</Button><div className="min-h-40 rounded-lg border border-background/20 bg-map-pattern p-5 text-sm font-semibold text-background/70">Mapa de localização</div></form>
         </div>
       </section>
+
+      <WhatsAppButton />
     </main>
   );
 };

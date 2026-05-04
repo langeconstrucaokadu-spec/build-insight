@@ -1,9 +1,10 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { BarChart3, Building2, CalendarDays, FilePlus2, FolderOpen, ImageIcon, Loader2, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import { BarChart3, CalendarDays, FilePlus2, FolderOpen, ImageIcon, Loader2, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { readUserRole, type AppRole } from "@/lib/permissions";
+import langeLogo from "@/assets/lange-logo.jpeg";
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -54,8 +55,8 @@ export const DashboardLayout = ({ children, title, kicker, actions }: DashboardL
       {/* Sidebar desktop */}
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-border bg-card px-5 py-6 lg:flex lg:flex-col">
         <Link to="/" className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Building2 className="size-5" /></span>
-          <span className="font-display text-xl font-bold">Arco Forte</span>
+          <img src={langeLogo} alt="Lange Construções" className="size-11 rounded-lg bg-white object-contain p-1 shadow-soft" />
+          <span className="font-display text-base font-bold leading-tight">Lange<br/>Construções</span>
         </Link>
         <nav className="mt-10 grid gap-2 text-sm font-semibold">
           {items.map((item) => (
@@ -74,8 +75,8 @@ export const DashboardLayout = ({ children, title, kicker, actions }: DashboardL
           <aside className="absolute inset-y-0 left-0 flex w-72 flex-col border-r border-border bg-card px-5 py-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <Link to="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-                <span className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Building2 className="size-5" /></span>
-                <span className="font-display text-lg font-bold">Arco Forte</span>
+                <img src={langeLogo} alt="Lange Construções" className="size-10 rounded-lg bg-white object-contain p-1" />
+                <span className="font-display text-base font-bold leading-tight">Lange<br/>Construções</span>
               </Link>
               <Button size="icon" variant="ghost" onClick={() => setMobileOpen(false)}><X className="size-5" /></Button>
             </div>

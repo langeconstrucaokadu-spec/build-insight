@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Building2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { readUserRole } from "@/lib/permissions";
 import { toast } from "sonner";
+import langeLogo from "@/assets/lange-logo.jpeg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -78,13 +79,13 @@ const Login = () => {
   return (
     <main className="grid min-h-screen bg-dashboard text-foreground lg:grid-cols-[1fr_0.9fr]">
       <section className="hidden overflow-hidden bg-foreground p-10 text-background lg:flex lg:flex-col lg:justify-between">
-        <Link to="/" className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-lg bg-accent text-accent-foreground"><Building2 className="size-5" /></span><span className="font-display text-xl font-bold">Arco Forte</span></Link>
+        <Link to="/" className="flex items-center gap-3"><img src={langeLogo} alt="Lange Construções" className="size-11 rounded-lg bg-white object-contain p-1" /><span className="font-display text-xl font-bold">Lange Construções</span></Link>
         <div className="max-w-xl animate-enter-up"><p className="font-bold uppercase tracking-[0.2em] text-accent">Área privada</p><h1 className="mt-4 font-display text-6xl font-bold leading-none">Obras, relatórios e cronogramas em um só lugar.</h1><p className="mt-6 text-lg leading-8 text-background/70">Acesso seguro para equipe administrativa e clientes acompanharem o avanço da construção com transparência.</p></div>
         <div className="grid grid-cols-3 gap-3 text-sm text-background/70"><span>Permissões por usuário</span><span>Upload de mídia</span><span>Dashboard responsivo</span></div>
       </section>
       <section className="flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-7 shadow-elevated">
-          <Link to="/" className="mb-8 flex items-center gap-3 lg:hidden"><span className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Building2 className="size-5" /></span><span className="font-display text-xl font-bold">Arco Forte</span></Link>
+          <Link to="/" className="mb-8 flex items-center gap-3 lg:hidden"><img src={langeLogo} alt="Lange Construções" className="size-10 rounded-lg bg-white object-contain p-1" /><span className="font-display text-xl font-bold">Lange Construções</span></Link>
           <h2 className="font-display text-3xl font-bold">{mode === "login" ? "Entrar no sistema" : "Criar acesso"}</h2>
           <p className="mt-2 text-muted-foreground">Use email e senha ou sua conta Google.</p>
           <form onSubmit={submit} className="mt-7 grid gap-4">
