@@ -12,6 +12,7 @@ import ProjectFormDialog from "@/components/modals/ProjectFormDialog";
 import ScheduleFormDialog from "@/components/modals/ScheduleFormDialog";
 import ReportEditDialog from "@/components/modals/ReportEditDialog";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
+import ScheduleHierarchy from "@/components/project/ScheduleHierarchy";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
@@ -154,20 +155,11 @@ const ProjectDetail = () => {
             ))}</div>
           </TabsContent>
           <TabsContent value="schedule" className="dashboard-panel mt-5">
-            <div className="panel-head"><h2>Cronograma da obra</h2>{isAdmin && <Button variant="construction" size="sm" onClick={() => setCreatingSchedule(true)}><Plus className="size-4" /> Nova etapa</Button>}</div>
-            <div className="mt-6 grid gap-4">{(schedule.length ? schedule : demoSchedule).map((item) => (
-              <div key={"id" in item ? item.id : item.stage} className="schedule-row">
-                <div><strong>{item.stage}</strong><p>{"planned_start_date" in item ? item.planned_start_date : item.start} → {"planned_end_date" in item ? item.planned_end_date : item.end}</p></div>
-                <span className="status-pill">{scheduleLabels[item.status]}</span>
-                <div className="flex items-center gap-3">
-                  <div className="min-w-28 flex-1"><div className="h-2 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${item.progress}%` }} /></div></div>
-                  {isAdmin && "id" in item && <>
-                    <Button size="icon" variant="outline" onClick={() => setEditingSchedule(item as Schedule)}><Edit className="size-3" /></Button>
-                    <Button size="icon" variant="outline" onClick={() => setDeletingSchedule(item as Schedule)}><Trash2 className="size-3" /></Button>
-                  </>}
-                </div>
-              </div>
-            ))}</div>
+            {project ? (
+              <ScheduleHierarchy projectId={project.id} isAdmin={isAdmin} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Carregue uma obra real para visualizar o cronograma hierárquico.</p>
+            )}
           </TabsContent>
           <TabsContent value="media" className="dashboard-panel mt-5"><h2>Biblioteca de fotos e vídeos</h2><div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Fundação", "Estrutura", "Instalações", "Acabamento"].map((stage) => <div key={stage} className="media-tile"><ImageIcon className="size-7" /><span>{stage}</span><small>Filtro por etapa</small></div>)}</div></TabsContent>
         </Tabs>
