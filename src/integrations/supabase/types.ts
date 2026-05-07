@@ -101,43 +101,31 @@ export type Database = {
         }
         Relationships: []
       }
-      project_reports: {
+      project_categories: {
         Row: {
           created_at: string
-          created_by: string
-          description: string
           id: string
+          name: string
           project_id: string
-          report_date: string
-          stage: string | null
-          title: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          created_by: string
-          description: string
           id?: string
+          name: string
           project_id: string
-          report_date?: string
-          stage?: string | null
-          title: string
           updated_at?: string
         }
         Update: {
           created_at?: string
-          created_by?: string
-          description?: string
           id?: string
+          name?: string
           project_id?: string
-          report_date?: string
-          stage?: string | null
-          title?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "project_reports_project_id_fkey"
+            foreignKeyName: "project_categories_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
@@ -145,43 +133,262 @@ export type Database = {
           },
         ]
       }
+      project_items: {
+        Row: {
+          category_id: string
+          created_at: string
+          delivered_date: string | null
+          expected_date: string | null
+          id: string
+          name: string
+          project_id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["item_status"]
+          subcategory_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          delivered_date?: string | null
+          expected_date?: string | null
+          id?: string
+          name: string
+          project_id: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["item_status"]
+          subcategory_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          delivered_date?: string | null
+          expected_date?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["item_status"]
+          subcategory_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "project_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_items_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "project_subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_reports: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          execution_status:
+            | Database["public"]["Enums"]["report_execution_status"]
+            | null
+          id: string
+          item_id: string | null
+          project_id: string
+          report_date: string
+          stage: string | null
+          subcategory_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          execution_status?:
+            | Database["public"]["Enums"]["report_execution_status"]
+            | null
+          id?: string
+          item_id?: string | null
+          project_id: string
+          report_date?: string
+          stage?: string | null
+          subcategory_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          execution_status?:
+            | Database["public"]["Enums"]["report_execution_status"]
+            | null
+          id?: string
+          item_id?: string | null
+          project_id?: string
+          report_date?: string
+          stage?: string | null
+          subcategory_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_reports_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "project_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reports_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "project_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_reports_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "project_subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_schedule: {
         Row: {
+          category_id: string | null
           created_at: string
           id: string
+          item_id: string | null
           planned_end_date: string
           planned_start_date: string
           progress: number
           project_id: string
           stage: string
           status: Database["public"]["Enums"]["schedule_status"]
+          subcategory_id: string | null
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           id?: string
+          item_id?: string | null
           planned_end_date: string
           planned_start_date: string
           progress?: number
           project_id: string
           stage: string
           status?: Database["public"]["Enums"]["schedule_status"]
+          subcategory_id?: string | null
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           id?: string
+          item_id?: string | null
           planned_end_date?: string
           planned_start_date?: string
           progress?: number
           project_id?: string
           stage?: string
           status?: Database["public"]["Enums"]["schedule_status"]
+          subcategory_id?: string | null
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "project_schedule_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "project_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_schedule_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "project_items"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "project_schedule_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_schedule_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "project_subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "project_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_subcategories_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
@@ -191,35 +398,81 @@ export type Database = {
       }
       report_media: {
         Row: {
+          captured_at: string | null
+          category_id: string | null
+          description: string | null
           file_url: string
           id: string
+          item_id: string | null
           media_type: Database["public"]["Enums"]["media_type"]
+          project_id: string | null
           report_id: string
           stage: string | null
+          subcategory_id: string | null
           uploaded_at: string
         }
         Insert: {
+          captured_at?: string | null
+          category_id?: string | null
+          description?: string | null
           file_url: string
           id?: string
+          item_id?: string | null
           media_type: Database["public"]["Enums"]["media_type"]
+          project_id?: string | null
           report_id: string
           stage?: string | null
+          subcategory_id?: string | null
           uploaded_at?: string
         }
         Update: {
+          captured_at?: string | null
+          category_id?: string | null
+          description?: string | null
           file_url?: string
           id?: string
+          item_id?: string | null
           media_type?: Database["public"]["Enums"]["media_type"]
+          project_id?: string | null
           report_id?: string
           stage?: string | null
+          subcategory_id?: string | null
           uploaded_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "report_media_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "project_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_media_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "project_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_media_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "report_media_report_id_fkey"
             columns: ["report_id"]
             isOneToOne: false
             referencedRelation: "project_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_media_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "project_subcategories"
             referencedColumns: ["id"]
           },
         ]
@@ -260,8 +513,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "client"
+      item_status: "pendente" | "em_andamento" | "finalizada"
       media_type: "photo" | "video"
       project_status: "planning" | "in_progress" | "completed"
+      report_execution_status: "comecando" | "desenvolvendo" | "finalizando"
       schedule_status: "pending" | "in_progress" | "completed" | "delayed"
     }
     CompositeTypes: {
@@ -391,8 +646,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "client"],
+      item_status: ["pendente", "em_andamento", "finalizada"],
       media_type: ["photo", "video"],
       project_status: ["planning", "in_progress", "completed"],
+      report_execution_status: ["comecando", "desenvolvendo", "finalizando"],
       schedule_status: ["pending", "in_progress", "completed", "delayed"],
     },
   },
