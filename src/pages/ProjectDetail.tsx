@@ -14,6 +14,7 @@ import ReportEditDialog from "@/components/modals/ReportEditDialog";
 import ReportFormDialog from "@/components/modals/ReportFormDialog";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import ScheduleHierarchy from "@/components/project/ScheduleHierarchy";
+import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
@@ -39,6 +40,7 @@ const ProjectDetail = () => {
   const [creatingSchedule, setCreatingSchedule] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [deletingSchedule, setDeletingSchedule] = useState<Schedule | null>(null);
+  const [reportMedia, setReportMedia] = useState<{ title: string; filter: MediaFilter } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -153,6 +155,16 @@ const ProjectDetail = () => {
                     </div>
                   )}
                 </div>
+                {"project_id" in report && (
+                  <div className="mt-3">
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const r = report as Report;
+                      setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, reportId: r.id } });
+                    }}>
+                      <ImageIcon className="size-3" /> Ver fotos do relatório
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}</div>
           </TabsContent>
@@ -171,6 +183,7 @@ const ProjectDetail = () => {
       <ReportEditDialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)} report={editingReport} onSaved={(r) => setReports((prev) => prev.map((x) => x.id === r.id ? r : x))} />
       <ConfirmDialog open={!!deletingReport} onOpenChange={(o) => !o && setDeletingReport(null)} title="Excluir relatório?" onConfirm={removeReport} />
       {project && <ReportFormDialog open={creatingReport} onOpenChange={setCreatingReport} projectId={project.id} onSaved={(r) => setReports((prev) => [r, ...prev])} />}
+      <MediaViewerDialog open={!!reportMedia} onOpenChange={(o) => !o && setReportMedia(null)} title={reportMedia?.title ?? "Fotos"} filter={reportMedia?.filter ?? null} />
       {project && <ScheduleFormDialog open={creatingSchedule || !!editingSchedule} onOpenChange={(o) => { if (!o) { setCreatingSchedule(false); setEditingSchedule(null); } }} schedule={editingSchedule} projects={[{ id: project.id, name: project.name }]} defaultProjectId={project.id} onSaved={(s) => setSchedule((prev) => { const ex = prev.find((p) => p.id === s.id); return (ex ? prev.map((p) => p.id === s.id ? s : p) : [...prev, s]).sort((a, b) => a.planned_start_date.localeCompare(b.planned_start_date)); })} />}
       <ConfirmDialog open={!!deletingSchedule} onOpenChange={(o) => !o && setDeletingSchedule(null)} title="Excluir etapa?" onConfirm={removeSchedule} />
     </DashboardLayout>
