@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import ItemFormDialog from "@/components/modals/ItemFormDialog";
+import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
 
 type Category = Database["public"]["Tables"]["project_categories"]["Row"];
 type Subcategory = Database["public"]["Tables"]["project_subcategories"]["Row"];
@@ -22,6 +23,12 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [viewer, setViewer] = useState<{ title: string; filter: MediaFilter } | null>(null);
+
+  const openMedia = (e: React.MouseEvent, title: string, filter: MediaFilter) => {
+    e.stopPropagation();
+    setViewer({ title, filter });
+  };
 
   useEffect(() => {
     (async () => {
@@ -70,7 +77,12 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
           return (
             <button key={c.id} onClick={() => setSelectedCategory(c.id)} className="schedule-row text-left hover:bg-secondary/40 transition">
               <div><strong>{c.name}</strong><p>{count} subcategoria(s)</p></div>
-              <ChevronRight className="size-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={(e) => openMedia(e, `Fotos · ${c.name}`, { projectId, categoryId: c.id })}>
+                  <ImageIcon className="size-3" /> Ver fotos
+                </Button>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </div>
             </button>
           );
         })}
@@ -83,7 +95,12 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
           return (
             <button key={s.id} onClick={() => setSelectedSub(s.id)} className="schedule-row text-left hover:bg-secondary/40 transition">
               <div><strong>{s.name}</strong><p>{count} item(ns)</p></div>
-              <ChevronRight className="size-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={(e) => openMedia(e, `Fotos · ${s.name}`, { projectId, subcategoryId: s.id })}>
+                  <ImageIcon className="size-3" /> Ver fotos
+                </Button>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </div>
             </button>
           );
         })}
@@ -97,7 +114,12 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
               <strong>{i.name}</strong>
               <p>Prevista: {i.expected_date ?? "—"} · Entregue: {i.delivered_date ?? "—"}</p>
             </div>
-            <span className="status-pill">{statusLabels[i.status]}</span>
+            <div className="flex items-center gap-2">
+              <span className="status-pill">{statusLabels[i.status]}</span>
+              <Button size="sm" variant="outline" onClick={(e) => openMedia(e, `Fotos · ${i.name}`, { projectId, itemId: i.id })}>
+                <ImageIcon className="size-3" /> Ver fotos
+              </Button>
+            </div>
           </div>
         ))}
         {selectedSub && !visibleItems.length && (
@@ -118,6 +140,13 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
           setSelectedCategory(item.category_id);
           setSelectedSub(item.subcategory_id);
         }}
+      />
+
+      <MediaViewerDialog
+        open={!!viewer}
+        onOpenChange={(o) => !o && setViewer(null)}
+        title={viewer?.title ?? "Fotos"}
+        filter={viewer?.filter ?? null}
       />
     </div>
   );
