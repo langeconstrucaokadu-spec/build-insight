@@ -11,6 +11,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProjectFormDialog from "@/components/modals/ProjectFormDialog";
 import ScheduleFormDialog from "@/components/modals/ScheduleFormDialog";
 import ReportEditDialog from "@/components/modals/ReportEditDialog";
+import ReportFormDialog from "@/components/modals/ReportFormDialog";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import ScheduleHierarchy from "@/components/project/ScheduleHierarchy";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ const ProjectDetail = () => {
   const [editProject, setEditProject] = useState(false);
   const [deleteProject, setDeleteProject] = useState(false);
   const [editingReport, setEditingReport] = useState<Report | null>(null);
+  const [creatingReport, setCreatingReport] = useState(false);
   const [deletingReport, setDeletingReport] = useState<Report | null>(null);
   const [creatingSchedule, setCreatingSchedule] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
@@ -128,7 +130,7 @@ const ProjectDetail = () => {
           </TabsList>
           <TabsContent value="overview" className="dashboard-panel mt-5"><h2>Informações da obra</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><p><strong>Etapa atual:</strong> {"current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage}</p><p><strong>Localização:</strong> {currentProject.location}</p><p><strong>Início:</strong> {"start_date" in currentProject ? currentProject.start_date || "A definir" : "2026-01-10"}</p><p><strong>Entrega prevista:</strong> {"estimated_delivery_date" in currentProject ? currentProject.estimated_delivery_date || "A definir" : "2026-10-15"}</p></div></TabsContent>
           <TabsContent value="reports" className="dashboard-panel mt-5">
-            <div className="panel-head"><h2>Relatórios cronológicos</h2>{isAdmin && project && <Button asChild variant="construction" size="sm"><Link to={`/obras/${project.id}/relatorios/novo`}><Plus className="size-4" /> Novo</Link></Button>}</div>
+            <div className="panel-head"><h2>Relatórios cronológicos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setCreatingReport(true)}><Plus className="size-4" /> Criar relatório</Button>}</div>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <input className="auth-field" type="date" value={reportDateFilter} onChange={(e) => setReportDateFilter(e.target.value)} />
               <select className="auth-field" value={reportStageFilter} onChange={(e) => setReportStageFilter(e.target.value)}>
@@ -168,6 +170,7 @@ const ProjectDetail = () => {
       <ConfirmDialog open={deleteProject} onOpenChange={setDeleteProject} title="Excluir obra?" description="Esta ação remove a obra e dados relacionados." onConfirm={removeProject} />
       <ReportEditDialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)} report={editingReport} onSaved={(r) => setReports((prev) => prev.map((x) => x.id === r.id ? r : x))} />
       <ConfirmDialog open={!!deletingReport} onOpenChange={(o) => !o && setDeletingReport(null)} title="Excluir relatório?" onConfirm={removeReport} />
+      {project && <ReportFormDialog open={creatingReport} onOpenChange={setCreatingReport} projectId={project.id} onSaved={(r) => setReports((prev) => [r, ...prev])} />}
       {project && <ScheduleFormDialog open={creatingSchedule || !!editingSchedule} onOpenChange={(o) => { if (!o) { setCreatingSchedule(false); setEditingSchedule(null); } }} schedule={editingSchedule} projects={[{ id: project.id, name: project.name }]} defaultProjectId={project.id} onSaved={(s) => setSchedule((prev) => { const ex = prev.find((p) => p.id === s.id); return (ex ? prev.map((p) => p.id === s.id ? s : p) : [...prev, s]).sort((a, b) => a.planned_start_date.localeCompare(b.planned_start_date)); })} />}
       <ConfirmDialog open={!!deletingSchedule} onOpenChange={(o) => !o && setDeletingSchedule(null)} title="Excluir etapa?" onConfirm={removeSchedule} />
     </DashboardLayout>
