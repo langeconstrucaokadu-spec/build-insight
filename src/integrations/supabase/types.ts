@@ -510,6 +510,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      recalc_item_status: { Args: { _item_id: string }; Returns: undefined }
+      recalc_project_progress: {
+        Args: { _project_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "client"
