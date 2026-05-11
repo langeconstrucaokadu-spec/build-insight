@@ -15,6 +15,7 @@ import ReportFormDialog from "@/components/modals/ReportFormDialog";
 import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import ScheduleHierarchy from "@/components/project/ScheduleHierarchy";
 import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
+import MediaUploadDialog from "@/components/modals/MediaUploadDialog";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
@@ -41,6 +42,8 @@ const ProjectDetail = () => {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [deletingSchedule, setDeletingSchedule] = useState<Schedule | null>(null);
   const [reportMedia, setReportMedia] = useState<{ title: string; filter: MediaFilter } | null>(null);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -175,7 +178,14 @@ const ProjectDetail = () => {
               <p className="text-sm text-muted-foreground">Carregue uma obra real para visualizar o cronograma hierárquico.</p>
             )}
           </TabsContent>
-          <TabsContent value="media" className="dashboard-panel mt-5"><h2>Biblioteca de fotos e vídeos</h2><div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Fundação", "Estrutura", "Instalações", "Acabamento"].map((stage) => <div key={stage} className="media-tile"><ImageIcon className="size-7" /><span>{stage}</span><small>Filtro por etapa</small></div>)}</div></TabsContent>
+          <TabsContent value="media" className="dashboard-panel mt-5">
+            <div className="panel-head"><h2>Biblioteca de fotos e vídeos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setUploadingMedia(true)}><Upload className="size-4" /> Subir fotos</Button>}</div>
+            {project ? (
+              <ProjectMediaGrid projectId={project.id} refreshKey={galleryRefresh} />
+            ) : (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Fundação", "Estrutura", "Instalações", "Acabamento"].map((stage) => <div key={stage} className="media-tile"><ImageIcon className="size-7" /><span>{stage}</span><small>Filtro por etapa</small></div>)}</div>
+            )}
+          </TabsContent>
         </Tabs>
 
       {project && <ProjectFormDialog open={editProject} onOpenChange={setEditProject} project={project} onSaved={(p) => setProject(p)} />}
@@ -184,6 +194,7 @@ const ProjectDetail = () => {
       <ConfirmDialog open={!!deletingReport} onOpenChange={(o) => !o && setDeletingReport(null)} title="Excluir relatório?" onConfirm={removeReport} />
       {project && <ReportFormDialog open={creatingReport} onOpenChange={setCreatingReport} projectId={project.id} onSaved={(r) => setReports((prev) => [r, ...prev])} />}
       <MediaViewerDialog open={!!reportMedia} onOpenChange={(o) => !o && setReportMedia(null)} title={reportMedia?.title ?? "Fotos"} filter={reportMedia?.filter ?? null} />
+      {project && <MediaUploadDialog open={uploadingMedia} onOpenChange={setUploadingMedia} projectId={project.id} onSaved={() => setGalleryRefresh((k) => k + 1)} />}
       {project && <ScheduleFormDialog open={creatingSchedule || !!editingSchedule} onOpenChange={(o) => { if (!o) { setCreatingSchedule(false); setEditingSchedule(null); } }} schedule={editingSchedule} projects={[{ id: project.id, name: project.name }]} defaultProjectId={project.id} onSaved={(s) => setSchedule((prev) => { const ex = prev.find((p) => p.id === s.id); return (ex ? prev.map((p) => p.id === s.id ? s : p) : [...prev, s]).sort((a, b) => a.planned_start_date.localeCompare(b.planned_start_date)); })} />}
       <ConfirmDialog open={!!deletingSchedule} onOpenChange={(o) => !o && setDeletingSchedule(null)} title="Excluir etapa?" onConfirm={removeSchedule} />
     </DashboardLayout>
