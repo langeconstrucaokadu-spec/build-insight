@@ -73,7 +73,7 @@ export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved }: Pr
       captured_at: form.captured_at,
       description: form.description || null,
       file_url: pub.publicUrl,
-      media_type: isVideo ? "video" : "image",
+      media_type: isVideo ? "video" : "photo",
     }).select().single();
     setSaving(false);
     if (error) return toast.error(error.message);
