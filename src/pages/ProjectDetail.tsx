@@ -16,6 +16,7 @@ import ConfirmDialog from "@/components/modals/ConfirmDialog";
 import ScheduleHierarchy from "@/components/project/ScheduleHierarchy";
 import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
 import MediaUploadDialog from "@/components/modals/MediaUploadDialog";
+import ProjectMediaGrid from "@/components/project/ProjectMediaGrid";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
