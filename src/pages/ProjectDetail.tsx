@@ -159,11 +159,11 @@ const ProjectDetail = () => {
                     </div>
                   )}
                 </div>
-                {"project_id" in report && (
+                {"project_id" in report && (report as Report).item_id && (
                   <div className="mt-3">
                     <Button size="sm" variant="outline" onClick={() => {
                       const r = report as Report;
-                      setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, reportId: r.id } });
+                      setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, itemId: r.item_id } });
                     }}>
                       <ImageIcon className="size-3" /> Ver fotos do relatório
                     </Button>
