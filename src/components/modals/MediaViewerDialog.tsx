@@ -29,14 +29,16 @@ export const MediaViewerDialog = ({ open, onOpenChange, title, filter }: Props) 
     if (!open || !filter) return;
     setLoading(true);
     (async () => {
-      let q = supabase.from("report_media").select("*").order("uploaded_at", { ascending: false });
-      if (filter.reportId) q = q.eq("report_id", filter.reportId);
-      else {
-        q = q.eq("project_id", filter.projectId);
-        if (filter.itemId) q = q.eq("item_id", filter.itemId);
-        else if (filter.subcategoryId) q = q.eq("subcategory_id", filter.subcategoryId);
-        else if (filter.categoryId) q = q.eq("category_id", filter.categoryId);
-      }
+      // Sempre consulta a galeria unificada (report_media) escopada pela obra,
+      // priorizando o vínculo mais específico disponível.
+      let q = supabase
+        .from("report_media")
+        .select("*")
+        .eq("project_id", filter.projectId)
+        .order("uploaded_at", { ascending: false });
+      if (filter.itemId) q = q.eq("item_id", filter.itemId);
+      else if (filter.subcategoryId) q = q.eq("subcategory_id", filter.subcategoryId);
+      else if (filter.categoryId) q = q.eq("category_id", filter.categoryId);
       const { data } = await q;
       setMedia(data ?? []);
       setLoading(false);
