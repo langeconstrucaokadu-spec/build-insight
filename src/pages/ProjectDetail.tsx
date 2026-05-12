@@ -17,11 +17,15 @@ import ScheduleHierarchy from "@/components/project/ScheduleHierarchy";
 import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
 import MediaUploadDialog from "@/components/modals/MediaUploadDialog";
 import ProjectMediaGrid from "@/components/project/ProjectMediaGrid";
+import HierarchyFilters, { emptyHierarchyFilter, type HierarchyFilterValue } from "@/components/project/HierarchyFilters";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
 type Report = Database["public"]["Tables"]["project_reports"]["Row"];
 type Schedule = Database["public"]["Tables"]["project_schedule"]["Row"];
+type Category = Database["public"]["Tables"]["project_categories"]["Row"];
+type Subcategory = Database["public"]["Tables"]["project_subcategories"]["Row"];
+type Item = Database["public"]["Tables"]["project_items"]["Row"];
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const ProjectDetail = () => {
@@ -32,8 +36,11 @@ const ProjectDetail = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [schedule, setSchedule] = useState<Schedule[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [reportDateFilter, setReportDateFilter] = useState("");
-  const [reportStageFilter, setReportStageFilter] = useState("all");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [reportFilters, setReportFilters] = useState<HierarchyFilterValue>(emptyHierarchyFilter);
+  const [galleryFilters, setGalleryFilters] = useState<HierarchyFilterValue>(emptyHierarchyFilter);
   const [editProject, setEditProject] = useState(false);
   const [deleteProject, setDeleteProject] = useState(false);
   const [editingReport, setEditingReport] = useState<Report | null>(null);
@@ -60,9 +67,17 @@ const ProjectDetail = () => {
         const { data: loadedProject } = await supabase.from("construction_projects").select("*").eq("id", id).maybeSingle();
         const { data: loadedReports } = await supabase.from("project_reports").select("*").eq("project_id", id).order("report_date", { ascending: false });
         const { data: loadedSchedule } = await supabase.from("project_schedule").select("*").eq("project_id", id).order("planned_start_date");
+        const [{ data: cats }, { data: subs }, { data: its }] = await Promise.all([
+          supabase.from("project_categories").select("*").eq("project_id", id).order("name"),
+          supabase.from("project_subcategories").select("*").eq("project_id", id).order("name"),
+          supabase.from("project_items").select("*").eq("project_id", id).order("name"),
+        ]);
         setProject(loadedProject);
         setReports(loadedReports ?? []);
         setSchedule(loadedSchedule ?? []);
+        setCategories(cats ?? []);
+        setSubcategories(subs ?? []);
+        setItems(its ?? []);
       }
       setLoading(false);
     };
@@ -71,12 +86,14 @@ const ProjectDetail = () => {
 
   const currentProject = project ?? demoProjects.find((item) => item.id === id) ?? demoProjects[0];
   const progress = "progress" in currentProject ? currentProject.progress : 0;
-  const reportStages = useMemo(() => Array.from(new Set(reports.map((r) => r.stage).filter(Boolean) as string[])), [reports]);
   const filteredReports = useMemo(() => reports.filter((r) => {
-    if (reportDateFilter && r.report_date < reportDateFilter) return false;
-    if (reportStageFilter !== "all" && r.stage !== reportStageFilter) return false;
+    if (reportFilters.categoryId !== "all" && r.category_id !== reportFilters.categoryId) return false;
+    if (reportFilters.subcategoryId !== "all" && r.subcategory_id !== reportFilters.subcategoryId) return false;
+    if (reportFilters.itemId !== "all" && r.item_id !== reportFilters.itemId) return false;
+    if (reportFilters.status !== "all" && r.execution_status !== reportFilters.status) return false;
+    if (reportFilters.date && r.report_date < reportFilters.date) return false;
     return true;
-  }), [reports, reportDateFilter, reportStageFilter]);
+  }), [reports, reportFilters]);
 
   const removeProject = async () => {
     if (!project) return;
@@ -137,13 +154,21 @@ const ProjectDetail = () => {
           <TabsContent value="overview" className="dashboard-panel mt-5"><h2>Informações da obra</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><p><strong>Etapa atual:</strong> {"current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage}</p><p><strong>Localização:</strong> {currentProject.location}</p><p><strong>Início:</strong> {"start_date" in currentProject ? currentProject.start_date || "A definir" : "2026-01-10"}</p><p><strong>Entrega prevista:</strong> {"estimated_delivery_date" in currentProject ? currentProject.estimated_delivery_date || "A definir" : "2026-10-15"}</p></div></TabsContent>
           <TabsContent value="reports" className="dashboard-panel mt-5">
             <div className="panel-head"><h2>Relatórios cronológicos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setCreatingReport(true)}><Plus className="size-4" /> Criar relatório</Button>}</div>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <input className="auth-field" type="date" value={reportDateFilter} onChange={(e) => setReportDateFilter(e.target.value)} />
-              <select className="auth-field" value={reportStageFilter} onChange={(e) => setReportStageFilter(e.target.value)}>
-                <option value="all">Todas as etapas</option>
-                {reportStages.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
+            {project && (
+              <HierarchyFilters
+                categories={categories}
+                subcategories={subcategories}
+                items={items}
+                value={reportFilters}
+                onChange={setReportFilters}
+                statusOptions={[
+                  { value: "comecando", label: "Começando" },
+                  { value: "desenvolvendo", label: "Desenvolvendo" },
+                  { value: "finalizando", label: "Finalizando" },
+                ]}
+                dateLabel="Relatórios a partir de"
+              />
+            )}
             <div className="mt-6 grid gap-4">{(reports.length ? filteredReports : demoReports).map((report) => (
               <div key={report.id} className="timeline-item">
                 <div className="flex items-start justify-between gap-3">
@@ -181,8 +206,18 @@ const ProjectDetail = () => {
           </TabsContent>
           <TabsContent value="media" className="dashboard-panel mt-5">
             <div className="panel-head"><h2>Biblioteca de fotos e vídeos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setUploadingMedia(true)}><Upload className="size-4" /> Subir fotos</Button>}</div>
+            {project && (
+              <HierarchyFilters
+                categories={categories}
+                subcategories={subcategories}
+                items={items}
+                value={galleryFilters}
+                onChange={setGalleryFilters}
+                dateLabel="Fotos a partir de"
+              />
+            )}
             {project ? (
-              <ProjectMediaGrid projectId={project.id} refreshKey={galleryRefresh} />
+              <ProjectMediaGrid projectId={project.id} refreshKey={galleryRefresh} filter={{ categoryId: galleryFilters.categoryId, subcategoryId: galleryFilters.subcategoryId, itemId: galleryFilters.itemId, date: galleryFilters.date }} />
             ) : (
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Fundação", "Estrutura", "Instalações", "Acabamento"].map((stage) => <div key={stage} className="media-tile"><ImageIcon className="size-7" /><span>{stage}</span><small>Filtro por etapa</small></div>)}</div>
             )}
