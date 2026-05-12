@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import ItemFormDialog from "@/components/modals/ItemFormDialog";
 import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
+import HierarchyFilters, { emptyHierarchyFilter, type HierarchyFilterValue } from "@/components/project/HierarchyFilters";
 
 type Category = Database["public"]["Tables"]["project_categories"]["Row"];
 type Subcategory = Database["public"]["Tables"]["project_subcategories"]["Row"];
@@ -24,6 +25,9 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [viewer, setViewer] = useState<{ title: string; filter: MediaFilter } | null>(null);
+  const [filters, setFilters] = useState<HierarchyFilterValue>(emptyHierarchyFilter);
+
+  const filtersActive = filters.categoryId !== "all" || filters.subcategoryId !== "all" || filters.itemId !== "all" || filters.status !== "all" || filters.date !== "";
 
   const openMedia = (e: React.MouseEvent, title: string, filter: MediaFilter) => {
     e.stopPropagation();
@@ -46,6 +50,15 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
   const visibleSubs = useMemo(() => subcategories.filter((s) => s.category_id === selectedCategory), [subcategories, selectedCategory]);
   const visibleItems = useMemo(() => items.filter((i) => i.subcategory_id === selectedSub), [items, selectedSub]);
 
+  const filteredFlatItems = useMemo(() => items.filter((i) => {
+    if (filters.categoryId !== "all" && i.category_id !== filters.categoryId) return false;
+    if (filters.subcategoryId !== "all" && i.subcategory_id !== filters.subcategoryId) return false;
+    if (filters.itemId !== "all" && i.id !== filters.itemId) return false;
+    if (filters.status !== "all" && i.status !== filters.status) return false;
+    if (filters.date && (i.expected_date ?? "") < filters.date) return false;
+    return true;
+  }), [items, filters]);
+
   const back = () => {
     if (selectedSub) setSelectedSub(null);
     else if (selectedCategory) setSelectedCategory(null);
@@ -55,13 +68,14 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
     <div>
       <div className="panel-head">
         <div className="flex items-center gap-2">
-          {(selectedCategory || selectedSub) && (
+          {!filtersActive && (selectedCategory || selectedSub) && (
             <Button size="sm" variant="outline" onClick={back}><ChevronLeft className="size-4" /> Voltar</Button>
           )}
           <h2>
-            {!selectedCategory && "Categorias"}
-            {selectedCategory && !selectedSub && `Subcategorias · ${categories.find((c) => c.id === selectedCategory)?.name}`}
-            {selectedSub && `Itens · ${subcategories.find((s) => s.id === selectedSub)?.name}`}
+            {filtersActive && `Itens filtrados (${filteredFlatItems.length})`}
+            {!filtersActive && !selectedCategory && "Categorias"}
+            {!filtersActive && selectedCategory && !selectedSub && `Subcategorias · ${categories.find((c) => c.id === selectedCategory)?.name}`}
+            {!filtersActive && selectedSub && `Itens · ${subcategories.find((s) => s.id === selectedSub)?.name}`}
           </h2>
         </div>
         {isAdmin && (
@@ -71,6 +85,42 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
         )}
       </div>
 
+      <HierarchyFilters
+        categories={categories}
+        subcategories={subcategories}
+        items={items}
+        value={filters}
+        onChange={setFilters}
+        statusOptions={[
+          { value: "pendente", label: "Pendente" },
+          { value: "em_andamento", label: "Em andamento" },
+          { value: "finalizada", label: "Finalizada" },
+        ]}
+        dateLabel="Prevista a partir de"
+      />
+
+      {filtersActive ? (
+        <div className="mt-6 grid gap-3">
+          {filteredFlatItems.map((i) => (
+            <div key={i.id} className="schedule-row">
+              <div>
+                <strong>{i.name}</strong>
+                <p>
+                  {categories.find((c) => c.id === i.category_id)?.name} · {subcategories.find((s) => s.id === i.subcategory_id)?.name}
+                </p>
+                <p>Prevista: {i.expected_date ?? "—"} · Entregue: {i.delivered_date ?? "—"}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="status-pill">{statusLabels[i.status]}</span>
+                <Button size="sm" variant="outline" onClick={(e) => openMedia(e, `Fotos · ${i.name}`, { projectId, itemId: i.id })}>
+                  <ImageIcon className="size-3" /> Ver fotos
+                </Button>
+              </div>
+            </div>
+          ))}
+          {!filteredFlatItems.length && <p className="text-sm text-muted-foreground">Nenhum item encontrado para os filtros.</p>}
+        </div>
+      ) : (
       <div className="mt-6 grid gap-3">
         {!selectedCategory && categories.map((c) => {
           const count = subcategories.filter((s) => s.category_id === c.id).length;
@@ -126,6 +176,7 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
           <p className="text-sm text-muted-foreground">Nenhum item cadastrado nesta subcategoria.</p>
         )}
       </div>
+      )}
 
       <ItemFormDialog
         open={creating}
