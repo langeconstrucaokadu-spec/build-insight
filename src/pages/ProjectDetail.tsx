@@ -85,7 +85,39 @@ const ProjectDetail = () => {
   }, [id, navigate]);
 
   const currentProject = project ?? demoProjects.find((item) => item.id === id) ?? demoProjects[0];
-  const progress = "progress" in currentProject ? currentProject.progress : 0;
+
+  // Métricas calculadas a partir dos dados reais (itens + relatórios).
+  const computed = useMemo(() => {
+    const total = items.length;
+    const done = items.filter((i) => i.status === "finalizada").length;
+    const inProgress = items.filter((i) => i.status === "em_andamento").length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    let derivedStatus: Project["status"] = "planning";
+    if (total > 0 && done === total) derivedStatus = "completed";
+    else if (inProgress > 0 || done > 0) derivedStatus = "in_progress";
+
+    // Etapa atual = categoria do relatório mais recente; fallback para categoria
+    // de um item em andamento; fallback final para current_stage do projeto.
+    let stageName: string | null = null;
+    const latestReport = reports.find((r) => r.category_id);
+    if (latestReport?.category_id) {
+      stageName = categories.find((c) => c.id === latestReport.category_id)?.name ?? null;
+    }
+    if (!stageName) {
+      const activeItem = items.find((i) => i.status === "em_andamento") ?? items.find((i) => i.status === "finalizada");
+      if (activeItem) stageName = categories.find((c) => c.id === activeItem.category_id)?.name ?? null;
+    }
+    return { total, done, pct, derivedStatus, stageName };
+  }, [items, reports, categories]);
+
+  const progress = project ? computed.pct : ("progress" in currentProject ? currentProject.progress : 0);
+  const displayStatus = project ? computed.derivedStatus : currentProject.status;
+  const displayStage = project
+    ? (computed.stageName ?? project.current_stage ?? "—")
+    : ("current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage);
+  const reportCount = project ? reports.length : demoReports.length;
+
   const filteredReports = useMemo(() => reports.filter((r) => {
     if (reportFilters.categoryId !== "all" && r.category_id !== reportFilters.categoryId) return false;
     if (reportFilters.subcategoryId !== "all" && r.subcategory_id !== reportFilters.subcategoryId) return false;
@@ -137,10 +169,10 @@ const ProjectDetail = () => {
         <section className="rounded-lg border border-border bg-card p-6 shadow-elevated lg:p-8">
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
             <div><p className="section-kicker">Página individual da obra</p><h1 className="mt-2 font-display text-4xl font-bold md:text-5xl">{currentProject.name}</h1><p className="mt-3 flex items-center gap-2 text-muted-foreground"><MapPin className="size-4" /> {currentProject.location}</p></div>
-            <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[currentProject.status]}</span>{isAdmin && <Button asChild variant="construction"><Link to={`/obra/${currentProject.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div>
+          <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[displayStatus]}</span>{isAdmin && <Button asChild variant="construction"><Link to={`/obra/${currentProject.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div>
           </div>
           <p className="mt-6 max-w-3xl leading-7 text-muted-foreground">{currentProject.description}</p>
-          <div className="mt-7 grid gap-4 md:grid-cols-3"><div className="metric-card"><span>Status atual</span><strong className="text-2xl">{statusLabels[currentProject.status]}</strong><p>{"current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage}</p></div><div className="metric-card"><span>Progresso</span><strong className="text-2xl">{progress}%</strong><p>percentual concluído</p></div><div className="metric-card"><span>Relatórios</span><strong className="text-2xl">{reports.length || demoReports.length}</strong><p>atualizações registradas</p></div></div>
+          <div className="mt-7 grid gap-4 md:grid-cols-3"><div className="metric-card"><span>Status atual</span><strong className="text-2xl">{statusLabels[displayStatus]}</strong><p>{displayStage}</p></div><div className="metric-card"><span>Progresso</span><strong className="text-2xl">{progress}%</strong><p>{computed.done}/{computed.total} itens finalizados</p></div><div className="metric-card"><span>Relatórios</span><strong className="text-2xl">{reportCount}</strong><p>atualizações registradas</p></div></div>
           <div className="mt-6 h-3 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${progress}%` }} /></div>
         </section>
 
