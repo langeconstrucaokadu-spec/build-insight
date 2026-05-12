@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ImageIcon, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type Media = Database["public"]["Tables"]["report_media"]["Row"];
 
-type Props = { projectId: string; refreshKey?: number };
+type Filter = {
+  categoryId?: string;
+  subcategoryId?: string;
+  itemId?: string;
+  date?: string;
+};
 
-export const ProjectMediaGrid = ({ projectId, refreshKey = 0 }: Props) => {
+type Props = { projectId: string; refreshKey?: number; filter?: Filter };
+
+export const ProjectMediaGrid = ({ projectId, refreshKey = 0, filter }: Props) => {
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,17 +31,28 @@ export const ProjectMediaGrid = ({ projectId, refreshKey = 0 }: Props) => {
     })();
   }, [projectId, refreshKey]);
 
+  const visible = useMemo(() => media.filter((m) => {
+    if (filter?.categoryId && filter.categoryId !== "all" && m.category_id !== filter.categoryId) return false;
+    if (filter?.subcategoryId && filter.subcategoryId !== "all" && m.subcategory_id !== filter.subcategoryId) return false;
+    if (filter?.itemId && filter.itemId !== "all" && m.item_id !== filter.itemId) return false;
+    if (filter?.date) {
+      const d = m.captured_at ?? new Date(m.uploaded_at).toISOString().slice(0, 10);
+      if (d < filter.date) return false;
+    }
+    return true;
+  }), [media, filter]);
+
   if (loading) return <div className="grid place-items-center py-10"><Loader2 className="size-6 animate-spin text-primary" /></div>;
-  if (media.length === 0) return (
+  if (visible.length === 0) return (
     <div className="mt-6 grid place-items-center gap-2 rounded-lg border border-dashed border-border py-12 text-muted-foreground">
       <ImageIcon className="size-8" />
-      <p className="text-sm">Nenhuma foto enviada ainda.</p>
+      <p className="text-sm">{media.length === 0 ? "Nenhuma foto enviada ainda." : "Nenhuma foto encontrada para os filtros."}</p>
     </div>
   );
 
   return (
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {media.map((m) => (
+      {visible.map((m) => (
         <a key={m.id} href={m.file_url} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-lg border border-border bg-secondary/40">
           {m.media_type === "video" ? (
             <video src={m.file_url} className="aspect-video w-full object-cover" />
