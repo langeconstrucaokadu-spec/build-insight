@@ -197,6 +197,39 @@ export type Database = {
           },
         ]
       }
+      project_permissions: {
+        Row: {
+          can_create_report: boolean
+          can_upload_photo: boolean
+          can_view: boolean
+          created_at: string
+          id: string
+          project_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_create_report?: boolean
+          can_upload_photo?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          project_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_create_report?: boolean
+          can_upload_photo?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       project_reports: {
         Row: {
           category_id: string | null
@@ -503,6 +536,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_project_permission: {
+        Args: { _perm: string; _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
