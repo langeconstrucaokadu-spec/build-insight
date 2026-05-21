@@ -29,19 +29,29 @@ export const MediaViewerDialog = ({ open, onOpenChange, title, filter }: Props) 
     if (!open || !filter) return;
     setLoading(true);
     (async () => {
-      // Sempre consulta a galeria unificada (report_media) escopada pela obra,
-      // priorizando o vínculo mais específico disponível.
+      // Galeria unificada (report_media) escopada pela obra.
+      // Para relatórios: une fotos do report_id COM fotos da galeria do mesmo item.
       let q = supabase
         .from("report_media")
         .select("*")
         .eq("project_id", filter.projectId)
         .order("uploaded_at", { ascending: false });
-      if (filter.reportId) q = q.eq("report_id", filter.reportId);
-      else if (filter.itemId) q = q.eq("item_id", filter.itemId);
-      else if (filter.subcategoryId) q = q.eq("subcategory_id", filter.subcategoryId);
-      else if (filter.categoryId) q = q.eq("category_id", filter.categoryId);
+      if (filter.reportId && filter.itemId) {
+        q = q.or(`report_id.eq.${filter.reportId},item_id.eq.${filter.itemId}`);
+      } else if (filter.reportId) {
+        q = q.eq("report_id", filter.reportId);
+      } else if (filter.itemId) {
+        q = q.eq("item_id", filter.itemId);
+      } else if (filter.subcategoryId) {
+        q = q.eq("subcategory_id", filter.subcategoryId);
+      } else if (filter.categoryId) {
+        q = q.eq("category_id", filter.categoryId);
+      }
       const { data } = await q;
-      setMedia(data ?? []);
+      // Dedup defensivo por id (caso uma foto bata em mais de uma condição).
+      const seen = new Set<string>();
+      const unique = (data ?? []).filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)));
+      setMedia(unique);
       setLoading(false);
     })();
   }, [open, filter]);
@@ -55,7 +65,7 @@ export const MediaViewerDialog = ({ open, onOpenChange, title, filter }: Props) 
         ) : media.length === 0 ? (
           <div className="grid place-items-center gap-2 py-10 text-muted-foreground">
             <ImageIcon className="size-8" />
-            <p className="text-sm">{filter?.reportId ? "Nenhuma foto vinculada diretamente a este relatório." : "Nenhuma foto encontrada para este filtro."}</p>
+            <p className="text-sm">{filter?.reportId ? "Nenhuma foto encontrada para este relatório ou item relacionado." : "Nenhuma foto encontrada para este filtro."}</p>
           </div>
         ) : (
           <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
