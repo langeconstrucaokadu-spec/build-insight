@@ -52,6 +52,8 @@ const ProjectDetail = () => {
   const [reportMedia, setReportMedia] = useState<{ title: string; filter: MediaFilter } | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
+  const [scheduleRefresh, setScheduleRefresh] = useState(0);
+  const [uploadForReport, setUploadForReport] = useState<Report | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -142,6 +144,7 @@ const ProjectDetail = () => {
     setReports((prev) => prev.filter((r) => r.id !== deletingReport.id));
     toast.success("Relatório excluído.");
     setDeletingReport(null);
+    refreshAfterReport();
   };
 
   const removeSchedule = async () => {
@@ -151,6 +154,19 @@ const ProjectDetail = () => {
     setSchedule((prev) => prev.filter((s) => s.id !== deletingSchedule.id));
     toast.success("Etapa excluída.");
     setDeletingSchedule(null);
+  };
+
+  // Após salvar/excluir relatório: refetch itens (status recalculado pelo trigger),
+  // refetch projeto (progresso/etapa) e refresh do cronograma.
+  const refreshAfterReport = async () => {
+    if (!project) return;
+    const [{ data: its }, { data: p }] = await Promise.all([
+      supabase.from("project_items").select("*").eq("project_id", project.id).order("name"),
+      supabase.from("construction_projects").select("*").eq("id", project.id).maybeSingle(),
+    ]);
+    if (its) setItems(its);
+    if (p) setProject(p);
+    setScheduleRefresh((k) => k + 1);
   };
 
   if (loading) return <main className="grid min-h-screen place-items-center bg-dashboard"><Loader2 className="size-8 animate-spin text-primary" /></main>;
@@ -218,12 +234,19 @@ const ProjectDetail = () => {
                 </div>
                 {"project_id" in report && (report as Report).item_id && (
                   <div className="mt-3">
-                    <Button size="sm" variant="outline" onClick={() => {
-                      const r = report as Report;
-                      setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, itemId: r.item_id } });
-                    }}>
-                      <ImageIcon className="size-3" /> Ver fotos do relatório
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        const r = report as Report;
+                        setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, reportId: r.id } });
+                      }}>
+                        <ImageIcon className="size-3" /> Ver fotos do relatório
+                      </Button>
+                      {isAdmin && (
+                        <Button size="sm" variant="construction" onClick={() => setUploadForReport(report as Report)}>
+                          <Upload className="size-3" /> Subir foto
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -231,7 +254,7 @@ const ProjectDetail = () => {
           </TabsContent>
           <TabsContent value="schedule" className="dashboard-panel mt-5">
             {project ? (
-              <ScheduleHierarchy projectId={project.id} isAdmin={isAdmin} />
+                <ScheduleHierarchy projectId={project.id} isAdmin={isAdmin} refreshKey={scheduleRefresh} />
             ) : (
               <p className="text-sm text-muted-foreground">Carregue uma obra real para visualizar o cronograma hierárquico.</p>
             )}
@@ -258,11 +281,26 @@ const ProjectDetail = () => {
 
       {project && <ProjectFormDialog open={editProject} onOpenChange={setEditProject} project={project} onSaved={(p) => setProject(p)} />}
       <ConfirmDialog open={deleteProject} onOpenChange={setDeleteProject} title="Excluir obra?" description="Esta ação remove a obra e dados relacionados." onConfirm={removeProject} />
-      <ReportEditDialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)} report={editingReport} onSaved={(r) => setReports((prev) => prev.map((x) => x.id === r.id ? r : x))} />
+      <ReportEditDialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)} report={editingReport} onSaved={(r) => { setReports((prev) => prev.map((x) => x.id === r.id ? r : x)); refreshAfterReport(); }} />
       <ConfirmDialog open={!!deletingReport} onOpenChange={(o) => !o && setDeletingReport(null)} title="Excluir relatório?" onConfirm={removeReport} />
-      {project && <ReportFormDialog open={creatingReport} onOpenChange={setCreatingReport} projectId={project.id} onSaved={(r) => setReports((prev) => [r, ...prev])} />}
+      {project && <ReportFormDialog open={creatingReport} onOpenChange={setCreatingReport} projectId={project.id} onSaved={(r) => { setReports((prev) => [r, ...prev]); refreshAfterReport(); }} />}
       <MediaViewerDialog open={!!reportMedia} onOpenChange={(o) => !o && setReportMedia(null)} title={reportMedia?.title ?? "Fotos"} filter={reportMedia?.filter ?? null} />
       {project && <MediaUploadDialog open={uploadingMedia} onOpenChange={setUploadingMedia} projectId={project.id} onSaved={() => setGalleryRefresh((k) => k + 1)} />}
+      {project && (
+        <MediaUploadDialog
+          open={!!uploadForReport}
+          onOpenChange={(o) => !o && setUploadForReport(null)}
+          projectId={project.id}
+          defaults={uploadForReport ? {
+            categoryId: uploadForReport.category_id,
+            subcategoryId: uploadForReport.subcategory_id,
+            itemId: uploadForReport.item_id,
+            reportId: uploadForReport.id,
+          } : undefined}
+          lockHierarchy
+          onSaved={() => { setGalleryRefresh((k) => k + 1); setUploadForReport(null); }}
+        />
+      )}
       {project && <ScheduleFormDialog open={creatingSchedule || !!editingSchedule} onOpenChange={(o) => { if (!o) { setCreatingSchedule(false); setEditingSchedule(null); } }} schedule={editingSchedule} projects={[{ id: project.id, name: project.name }]} defaultProjectId={project.id} onSaved={(s) => setSchedule((prev) => { const ex = prev.find((p) => p.id === s.id); return (ex ? prev.map((p) => p.id === s.id ? s : p) : [...prev, s]).sort((a, b) => a.planned_start_date.localeCompare(b.planned_start_date)); })} />}
       <ConfirmDialog open={!!deletingSchedule} onOpenChange={(o) => !o && setDeletingSchedule(null)} title="Excluir etapa?" onConfirm={removeSchedule} />
     </DashboardLayout>

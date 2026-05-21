@@ -36,7 +36,8 @@ export const MediaViewerDialog = ({ open, onOpenChange, title, filter }: Props) 
         .select("*")
         .eq("project_id", filter.projectId)
         .order("uploaded_at", { ascending: false });
-      if (filter.itemId) q = q.eq("item_id", filter.itemId);
+      if (filter.reportId) q = q.eq("report_id", filter.reportId);
+      else if (filter.itemId) q = q.eq("item_id", filter.itemId);
       else if (filter.subcategoryId) q = q.eq("subcategory_id", filter.subcategoryId);
       else if (filter.categoryId) q = q.eq("category_id", filter.categoryId);
       const { data } = await q;
@@ -54,7 +55,7 @@ export const MediaViewerDialog = ({ open, onOpenChange, title, filter }: Props) 
         ) : media.length === 0 ? (
           <div className="grid place-items-center gap-2 py-10 text-muted-foreground">
             <ImageIcon className="size-8" />
-            <p className="text-sm">Nenhuma foto encontrada para este filtro.</p>
+            <p className="text-sm">{filter?.reportId ? "Nenhuma foto vinculada diretamente a este relatório." : "Nenhuma foto encontrada para este filtro."}</p>
           </div>
         ) : (
           <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
