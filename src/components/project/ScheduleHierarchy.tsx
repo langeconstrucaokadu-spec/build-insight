@@ -17,7 +17,7 @@ const statusLabels: Record<Item["status"], string> = {
   finalizada: "Finalizada",
 };
 
-const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin: boolean }) => {
+const ScheduleHierarchy = ({ projectId, isAdmin, refreshKey = 0 }: { projectId: string; isAdmin: boolean; refreshKey?: number }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [items, setItems] = useState<Item[]>([]);
@@ -45,7 +45,7 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
       setSubcategories(s ?? []);
       setItems(i ?? []);
     })();
-  }, [projectId]);
+  }, [projectId, refreshKey]);
 
   const visibleSubs = useMemo(() => subcategories.filter((s) => s.category_id === selectedCategory), [subcategories, selectedCategory]);
   const visibleItems = useMemo(() => items.filter((i) => i.subcategory_id === selectedSub), [items, selectedSub]);
@@ -55,7 +55,7 @@ const ScheduleHierarchy = ({ projectId, isAdmin }: { projectId: string; isAdmin:
     if (filters.subcategoryId !== "all" && i.subcategory_id !== filters.subcategoryId) return false;
     if (filters.itemId !== "all" && i.id !== filters.itemId) return false;
     if (filters.status !== "all" && i.status !== filters.status) return false;
-    if (filters.date && (i.expected_date ?? "") < filters.date) return false;
+    if (filters.date && i.expected_date && i.expected_date < filters.date) return false;
     return true;
   }), [items, filters]);
 
