@@ -89,7 +89,7 @@ const ReportUpload = () => {
         const { error: uploadError } = await supabase.storage.from("project-media").upload(path, file, { contentType: file.type, upsert: false });
         if (uploadError) throw uploadError;
 
-        const { data: mediaRow, error: mediaError } = await supabase.from("report_media").insert({ report_id: report.id, file_url: path, media_type: mediaType, stage: form.stage || null }).select().single();
+        const { data: mediaRow, error: mediaError } = await supabase.from("report_media").insert({ project_id: id, report_id: report.id, file_url: path, media_type: mediaType, stage: form.stage || null }).select().single();
         if (mediaError) throw mediaError;
 
         const { data: signed } = await supabase.storage.from("project-media").createSignedUrl(path, 60 * 30);
