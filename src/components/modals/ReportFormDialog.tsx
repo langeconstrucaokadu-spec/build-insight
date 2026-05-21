@@ -33,10 +33,12 @@ export const ReportFormDialog = ({ open, onOpenChange, projectId, onSaved }: Pro
     report_date: today(),
   });
   const [saving, setSaving] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (!open) return;
     setForm({ category_id: "", subcategory_id: "", item_id: "", execution_status: "comecando", title: "", description: "", report_date: today() });
+    setFiles([]);
     (async () => {
       const [{ data: c }, { data: s }, { data: i }] = await Promise.all([
         supabase.from("project_categories").select("*").eq("project_id", projectId).order("name"),
@@ -73,9 +75,37 @@ export const ReportFormDialog = ({ open, onOpenChange, projectId, onSaved }: Pro
       report_date: form.report_date,
       created_by: userId,
     }).select().single();
+    if (error) { setSaving(false); return toast.error(error.message); }
+
+    // Upload opcional de imagens vinculadas ao relatório recém criado.
+    let failed = 0;
+    if (files.length > 0) {
+      for (const file of files) {
+        try {
+          const isVideo = file.type.startsWith("video/");
+          const ext = file.name.split(".").pop() ?? "bin";
+          const path = `${projectId}/${form.item_id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage.from("project-media").upload(path, file, { contentType: file.type, upsert: false });
+          if (upErr) { failed++; continue; }
+          const { data: pub } = supabase.storage.from("project-media").getPublicUrl(path);
+          const { error: insErr } = await supabase.from("report_media").insert({
+            project_id: projectId,
+            category_id: form.category_id,
+            subcategory_id: form.subcategory_id,
+            item_id: form.item_id,
+            report_id: data.id,
+            captured_at: form.report_date,
+            description: form.description || null,
+            file_url: pub.publicUrl,
+            media_type: isVideo ? "video" : "photo",
+          });
+          if (insErr) failed++;
+        } catch { failed++; }
+      }
+      if (failed > 0) toast.warning(`Relatório criado, mas ${failed} de ${files.length} imagem(ns) falharam no envio.`);
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success("Relatório criado.");
+    toast.success(files.length > 0 && failed === 0 ? "Relatório e fotos enviados." : "Relatório criado.");
     onSaved(data);
     onOpenChange(false);
   };
@@ -109,6 +139,19 @@ export const ReportFormDialog = ({ open, onOpenChange, projectId, onSaved }: Pro
             <input className="auth-field" required type="date" value={form.report_date} onChange={(e) => setForm({ ...form, report_date: e.target.value })} />
           </div>
           <textarea className="auth-field min-h-32" required placeholder="Descrição" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <div className="grid gap-1">
+            <label className="text-xs text-muted-foreground">Imagens (opcional — pode anexar uma ou mais)</label>
+            <input
+              className="auth-field"
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+            />
+            {files.length > 0 && (
+              <p className="text-xs text-muted-foreground">{files.length} arquivo(s) selecionado(s)</p>
+            )}
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
             <Button type="submit" variant="construction" disabled={saving}>{saving ? "Salvando..." : "Criar relatório"}</Button>

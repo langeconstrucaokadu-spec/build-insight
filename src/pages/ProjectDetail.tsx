@@ -237,7 +237,7 @@ const ProjectDetail = () => {
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" variant="outline" onClick={() => {
                         const r = report as Report;
-                        setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, reportId: r.id } });
+                        setReportMedia({ title: `Fotos · ${r.title}`, filter: { projectId: r.project_id, reportId: r.id, itemId: r.item_id, categoryId: r.category_id, subcategoryId: r.subcategory_id } });
                       }}>
                         <ImageIcon className="size-3" /> Ver fotos do relatório
                       </Button>
