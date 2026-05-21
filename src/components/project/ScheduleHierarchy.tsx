@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, ImageIcon, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, Plus, FolderTree } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import ItemFormDialog from "@/components/modals/ItemFormDialog";
+import CategoryManagerDialog from "@/components/modals/CategoryManagerDialog";
 import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaViewerDialog";
 import HierarchyFilters, { emptyHierarchyFilter, type HierarchyFilterValue } from "@/components/project/HierarchyFilters";
 
@@ -24,6 +25,7 @@ const ScheduleHierarchy = ({ projectId, isAdmin, refreshKey = 0 }: { projectId: 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [managing, setManaging] = useState(false);
   const [viewer, setViewer] = useState<{ title: string; filter: MediaFilter } | null>(null);
   const [filters, setFilters] = useState<HierarchyFilterValue>(emptyHierarchyFilter);
 
@@ -34,18 +36,18 @@ const ScheduleHierarchy = ({ projectId, isAdmin, refreshKey = 0 }: { projectId: 
     setViewer({ title, filter });
   };
 
-  useEffect(() => {
-    (async () => {
-      const [{ data: c }, { data: s }, { data: i }] = await Promise.all([
-        supabase.from("project_categories").select("*").eq("project_id", projectId).order("name"),
-        supabase.from("project_subcategories").select("*").eq("project_id", projectId).order("name"),
-        supabase.from("project_items").select("*").eq("project_id", projectId).order("name"),
-      ]);
-      setCategories(c ?? []);
-      setSubcategories(s ?? []);
-      setItems(i ?? []);
-    })();
-  }, [projectId, refreshKey]);
+  const refetchAll = async () => {
+    const [{ data: c }, { data: s }, { data: i }] = await Promise.all([
+      supabase.from("project_categories").select("*").eq("project_id", projectId).order("name"),
+      supabase.from("project_subcategories").select("*").eq("project_id", projectId).order("name"),
+      supabase.from("project_items").select("*").eq("project_id", projectId).order("name"),
+    ]);
+    setCategories(c ?? []);
+    setSubcategories(s ?? []);
+    setItems(i ?? []);
+  };
+
+  useEffect(() => { refetchAll(); }, [projectId, refreshKey]);
 
   const visibleSubs = useMemo(() => subcategories.filter((s) => s.category_id === selectedCategory), [subcategories, selectedCategory]);
   const visibleItems = useMemo(() => items.filter((i) => i.subcategory_id === selectedSub), [items, selectedSub]);
@@ -79,9 +81,14 @@ const ScheduleHierarchy = ({ projectId, isAdmin, refreshKey = 0 }: { projectId: 
           </h2>
         </div>
         {isAdmin && (
-          <Button variant="construction" size="sm" onClick={() => setCreating(true)}>
-            <Plus className="size-4" /> Adicionar novo item
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setManaging(true)}>
+              <FolderTree className="size-4" /> Gerenciar categorias
+            </Button>
+            <Button variant="construction" size="sm" onClick={() => setCreating(true)}>
+              <Plus className="size-4" /> Adicionar novo item
+            </Button>
+          </div>
         )}
       </div>
 
@@ -191,6 +198,19 @@ const ScheduleHierarchy = ({ projectId, isAdmin, refreshKey = 0 }: { projectId: 
           setSelectedCategory(item.category_id);
           setSelectedSub(item.subcategory_id);
         }}
+        onCategoryCreated={(c) => setCategories((prev) => [...prev, c].sort((a, b) => a.name.localeCompare(b.name)))}
+        onSubcategoryCreated={(s) => setSubcategories((prev) => [...prev, s].sort((a, b) => a.name.localeCompare(b.name)))}
+      />
+
+      <CategoryManagerDialog
+        open={managing}
+        onOpenChange={setManaging}
+        projectId={projectId}
+        isAdmin={isAdmin}
+        categories={categories}
+        subcategories={subcategories}
+        items={items}
+        onChanged={refetchAll}
       />
 
       <MediaViewerDialog
