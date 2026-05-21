@@ -438,7 +438,7 @@ export type Database = {
           id: string
           item_id: string | null
           media_type: Database["public"]["Enums"]["media_type"]
-          project_id: string | null
+          project_id: string
           report_id: string | null
           stage: string | null
           subcategory_id: string | null
@@ -452,7 +452,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           media_type: Database["public"]["Enums"]["media_type"]
-          project_id?: string | null
+          project_id: string
           report_id?: string | null
           stage?: string | null
           subcategory_id?: string | null
@@ -466,7 +466,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           media_type?: Database["public"]["Enums"]["media_type"]
-          project_id?: string | null
+          project_id?: string
           report_id?: string | null
           stage?: string | null
           subcategory_id?: string | null
