@@ -15,11 +15,18 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   projectId: string;
   onSaved?: (media: Media) => void;
+  defaults?: {
+    categoryId?: string | null;
+    subcategoryId?: string | null;
+    itemId?: string | null;
+    reportId?: string | null;
+  };
+  lockHierarchy?: boolean;
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved }: Props) => {
+export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved, defaults, lockHierarchy }: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [items, setItems] = useState<Item[]>([]);
@@ -35,7 +42,13 @@ export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved }: Pr
 
   useEffect(() => {
     if (!open) return;
-    setForm({ category_id: "", subcategory_id: "", item_id: "", captured_at: today(), description: "" });
+    setForm({
+      category_id: defaults?.categoryId ?? "",
+      subcategory_id: defaults?.subcategoryId ?? "",
+      item_id: defaults?.itemId ?? "",
+      captured_at: today(),
+      description: "",
+    });
     setFile(null);
     (async () => {
       const [{ data: c }, { data: s }, { data: i }] = await Promise.all([
@@ -47,7 +60,7 @@ export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved }: Pr
       setSubcategories(s ?? []);
       setItems(i ?? []);
     })();
-  }, [open, projectId]);
+  }, [open, projectId, defaults?.categoryId, defaults?.subcategoryId, defaults?.itemId]);
 
   const filteredSubs = useMemo(() => subcategories.filter((s) => s.category_id === form.category_id), [subcategories, form.category_id]);
   const filteredItems = useMemo(() => items.filter((i) => i.subcategory_id === form.subcategory_id), [items, form.subcategory_id]);
@@ -70,6 +83,7 @@ export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved }: Pr
       category_id: form.category_id,
       subcategory_id: form.subcategory_id,
       item_id: form.item_id,
+      report_id: defaults?.reportId ?? null,
       captured_at: form.captured_at,
       description: form.description || null,
       file_url: pub.publicUrl,
@@ -85,18 +99,18 @@ export const MediaUploadDialog = ({ open, onOpenChange, projectId, onSaved }: Pr
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
-        <DialogHeader><DialogTitle>Subir fotos</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{defaults?.reportId ? "Subir foto do relatório" : "Subir fotos"}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-3">
-            <select className="auth-field" required value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value, subcategory_id: "", item_id: "" })}>
+            <select className="auth-field" required disabled={lockHierarchy} value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value, subcategory_id: "", item_id: "" })}>
               <option value="">Categoria</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-            <select className="auth-field" required disabled={!form.category_id} value={form.subcategory_id} onChange={(e) => setForm({ ...form, subcategory_id: e.target.value, item_id: "" })}>
+            <select className="auth-field" required disabled={lockHierarchy || !form.category_id} value={form.subcategory_id} onChange={(e) => setForm({ ...form, subcategory_id: e.target.value, item_id: "" })}>
               <option value="">Subcategoria</option>
               {filteredSubs.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
-            <select className="auth-field" required disabled={!form.subcategory_id} value={form.item_id} onChange={(e) => setForm({ ...form, item_id: e.target.value })}>
+            <select className="auth-field" required disabled={lockHierarchy || !form.subcategory_id} value={form.item_id} onChange={(e) => setForm({ ...form, item_id: e.target.value })}>
               <option value="">Item</option>
               {filteredItems.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
             </select>
