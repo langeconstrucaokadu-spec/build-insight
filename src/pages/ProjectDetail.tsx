@@ -281,7 +281,7 @@ const ProjectDetail = () => {
 
       {project && <ProjectFormDialog open={editProject} onOpenChange={setEditProject} project={project} onSaved={(p) => setProject(p)} />}
       <ConfirmDialog open={deleteProject} onOpenChange={setDeleteProject} title="Excluir obra?" description="Esta ação remove a obra e dados relacionados." onConfirm={removeProject} />
-      <ReportEditDialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)} report={editingReport} onSaved={(r) => setReports((prev) => prev.map((x) => x.id === r.id ? r : x))} />
+      <ReportEditDialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)} report={editingReport} onSaved={(r) => { setReports((prev) => prev.map((x) => x.id === r.id ? r : x)); refreshAfterReport(); }} />
       <ConfirmDialog open={!!deletingReport} onOpenChange={(o) => !o && setDeletingReport(null)} title="Excluir relatório?" onConfirm={removeReport} />
       {project && <ReportFormDialog open={creatingReport} onOpenChange={setCreatingReport} projectId={project.id} onSaved={(r) => { setReports((prev) => [r, ...prev]); refreshAfterReport(); }} />}
       <MediaViewerDialog open={!!reportMedia} onOpenChange={(o) => !o && setReportMedia(null)} title={reportMedia?.title ?? "Fotos"} filter={reportMedia?.filter ?? null} />
