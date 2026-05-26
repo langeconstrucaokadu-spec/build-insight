@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Trash2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout, { useDashboardRole } from "@/components/dashboard/DashboardLayout";
+import ConfirmDialog from "@/components/modals/ConfirmDialog";
+import { deleteMedia } from "@/lib/media";
 
 type Media = Database["public"]["Tables"]["report_media"]["Row"];
 type Report = Pick<Database["public"]["Tables"]["project_reports"]["Row"], "id" | "title" | "report_date" | "project_id">;
@@ -25,6 +27,7 @@ const resolveUrl = (file_url: string) => {
 };
 
 const Gallery = () => {
+  const { isAdmin } = useDashboardRole();
   const [items, setItems] = useState<Enriched[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -36,6 +39,7 @@ const Gallery = () => {
   const [itemFilter, setItemFilter] = useState("all");
   const [date, setDate] = useState("");
   const [active, setActive] = useState<Enriched | null>(null);
+  const [deleting, setDeleting] = useState<Enriched | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -97,6 +101,16 @@ const Gallery = () => {
     return true;
   }), [items, projectFilter, categoryFilter, subcategoryFilter, itemFilter, date]);
 
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    const ok = await deleteMedia(deleting.id, deleting.file_url);
+    if (ok) {
+      setItems((prev) => prev.filter((m) => m.id !== deleting.id));
+      if (active?.id === deleting.id) setActive(null);
+    }
+    setDeleting(null);
+  };
+
   return (
     <DashboardLayout title="Galeria" kicker="Fotos e vídeos das obras">
       <section className="dashboard-panel">
@@ -129,7 +143,18 @@ const Gallery = () => {
           const dateStr = item.captured_at ?? new Date(item.uploaded_at).toISOString().slice(0, 10);
           const alt = item.reportTitle || item.description || itm || "Mídia da obra";
           return (
-            <button key={item.id} onClick={() => setActive(item)} className="media-preview-card group text-left">
+            <div key={item.id} className="media-preview-card group relative text-left">
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setDeleting(item); }}
+                  className="absolute right-2 top-2 z-10 rounded-md bg-background/90 p-1.5 text-destructive shadow-sm transition hover:bg-destructive hover:text-destructive-foreground"
+                  aria-label="Excluir imagem"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              )}
+              <button type="button" onClick={() => setActive(item)} className="block w-full text-left">
               {item.media_type === "video" ? (
                 <video src={item.resolvedUrl} muted className="aspect-[4/3] w-full bg-muted object-cover" />
               ) : (
@@ -150,7 +175,8 @@ const Gallery = () => {
                 <strong>{item.reportTitle ?? itm ?? "Sem título"}</strong>
                 <p>{projectName(item.project_id)} · {categoryName(item.category_id)} · {detail} · {dateStr}</p>
               </div>
-            </button>
+              </button>
+            </div>
           );
         })}
         {!filtered.length && (
@@ -177,6 +203,13 @@ const Gallery = () => {
           )}
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(o) => !o && setDeleting(null)}
+        title="Excluir imagem?"
+        description="Tem certeza que deseja excluir esta imagem? Essa ação não pode ser desfeita."
+        onConfirm={confirmDelete}
+      />
     </DashboardLayout>
   );
 };
