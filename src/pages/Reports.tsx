@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Edit, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -60,7 +59,6 @@ const Reports = () => {
     <DashboardLayout
       title="Relatórios"
       kicker="Histórico técnico"
-      actions={isAdmin && projects[0] ? <Button asChild variant="construction"><Link to={`/obras/${projects[0].id}/relatorios/novo`}><Plus className="size-4" /> Novo relatório</Link></Button> : null}
     >
       <section className="dashboard-panel">
         <div className="grid gap-4 md:grid-cols-[1.4fr_1fr_1fr_140px]">
