@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Edit, List, Plus, Trash2, GanttChart } from "lucide-react";
+import { Edit, List, Trash2, GanttChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -22,7 +22,6 @@ const SchedulePage = () => {
   const [to, setTo] = useState("");
   const [view, setView] = useState<"list" | "timeline">("list");
   const [editing, setEditing] = useState<Schedule | null>(null);
-  const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<Schedule | null>(null);
 
   useEffect(() => {
@@ -64,7 +63,6 @@ const SchedulePage = () => {
     <DashboardLayout
       title="Cronograma"
       kicker="Etapas planejadas"
-      actions={isAdmin ? <Button variant="construction" onClick={() => setCreating(true)}><Plus className="size-4" /> Nova etapa</Button> : null}
     >
       <section className="dashboard-panel">
         <div className="grid gap-4 md:grid-cols-[1.2fr_1fr_1fr_1fr_140px]">
@@ -114,7 +112,7 @@ const SchedulePage = () => {
         </section>
       )}
 
-      <ScheduleFormDialog open={creating || !!editing} onOpenChange={(o) => { if (!o) { setCreating(false); setEditing(null); } }} schedule={editing} projects={projects} onSaved={onSaved} />
+      <ScheduleFormDialog open={!!editing} onOpenChange={(o) => { if (!o) setEditing(null); }} schedule={editing} projects={projects} onSaved={onSaved} />
       <ConfirmDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)} title="Excluir etapa?" description={`"${deleting?.stage}" será removida.`} onConfirm={remove} />
     </DashboardLayout>
   );
