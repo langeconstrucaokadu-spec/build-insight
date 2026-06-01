@@ -147,12 +147,19 @@ export type Database = {
       }
       project_items: {
         Row: {
+          actual_end_date: string | null
+          actual_start_date: string | null
           category_id: string
           created_at: string
+          delay_justification: string | null
           delivered_date: string | null
           expected_date: string | null
           id: string
           name: string
+          observation: string | null
+          order_index: number
+          planned_end_date: string | null
+          planned_start_date: string | null
           project_id: string
           start_date: string | null
           status: Database["public"]["Enums"]["item_status"]
@@ -160,12 +167,19 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          actual_end_date?: string | null
+          actual_start_date?: string | null
           category_id: string
           created_at?: string
+          delay_justification?: string | null
           delivered_date?: string | null
           expected_date?: string | null
           id?: string
           name: string
+          observation?: string | null
+          order_index?: number
+          planned_end_date?: string | null
+          planned_start_date?: string | null
           project_id: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["item_status"]
@@ -173,12 +187,19 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          actual_end_date?: string | null
+          actual_start_date?: string | null
           category_id?: string
           created_at?: string
+          delay_justification?: string | null
           delivered_date?: string | null
           expected_date?: string | null
           id?: string
           name?: string
+          observation?: string | null
+          order_index?: number
+          planned_end_date?: string | null
+          planned_start_date?: string | null
           project_id?: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["item_status"]
