@@ -22,14 +22,18 @@ export type Database = {
           current_stage: string | null
           description: string
           estimated_delivery_date: string | null
+          filled_at: string
           id: string
           is_portfolio: boolean
           is_public: boolean
+          last_activity_at: string
           location: string
           name: string
+          observation: string | null
           progress: number
           start_date: string | null
           status: Database["public"]["Enums"]["project_status"]
+          unit: string | null
           updated_at: string
         }
         Insert: {
@@ -39,14 +43,18 @@ export type Database = {
           current_stage?: string | null
           description: string
           estimated_delivery_date?: string | null
+          filled_at?: string
           id?: string
           is_portfolio?: boolean
           is_public?: boolean
+          last_activity_at?: string
           location: string
           name: string
+          observation?: string | null
           progress?: number
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
+          unit?: string | null
           updated_at?: string
         }
         Update: {
@@ -56,14 +64,18 @@ export type Database = {
           current_stage?: string | null
           description?: string
           estimated_delivery_date?: string | null
+          filled_at?: string
           id?: string
           is_portfolio?: boolean
           is_public?: boolean
+          last_activity_at?: string
           location?: string
           name?: string
+          observation?: string | null
           progress?: number
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
+          unit?: string | null
           updated_at?: string
         }
         Relationships: []
