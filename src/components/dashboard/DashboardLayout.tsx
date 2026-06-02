@@ -22,6 +22,7 @@ const NAV: NavEntry[] = [
   { to: "/cronograma", label: "Cronograma", icon: CalendarDays },
   { to: "/galeria", label: "Galeria", icon: ImageIcon },
   { to: "/permissoes", label: "Permissões", icon: ShieldCheck, adminOnly: true },
+  { to: "/clientes-portal", label: "Portal do Cliente", icon: ShieldCheck, adminOnly: true },
 ];
 
 export const DashboardLayout = ({ children, title, kicker, actions }: DashboardLayoutProps) => {
