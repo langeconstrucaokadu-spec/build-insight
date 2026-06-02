@@ -14,6 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_portal_project_access: {
+        Row: {
+          client_user_id: string
+          created_at: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          client_user_id: string
+          created_at?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          client_user_id?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_portal_project_access_client_user_id_fkey"
+            columns: ["client_user_id"]
+            isOneToOne: false
+            referencedRelation: "client_portal_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_portal_project_access_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_portal_sessions: {
+        Row: {
+          client_user_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          token_hash: string
+        }
+        Insert: {
+          client_user_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          token_hash: string
+        }
+        Update: {
+          client_user_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_portal_sessions_client_user_id_fkey"
+            columns: ["client_user_id"]
+            isOneToOne: false
+            referencedRelation: "client_portal_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_portal_users: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          last_login_at: string | null
+          password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          last_login_at?: string | null
+          password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          last_login_at?: string | null
+          password_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       construction_projects: {
         Row: {
           client_id: string | null
@@ -584,6 +685,14 @@ export type Database = {
       recalc_project_progress: {
         Args: { _project_id: string }
         Returns: undefined
+      }
+      verify_client_portal_token: {
+        Args: { _token_hash: string }
+        Returns: {
+          client_user_id: string
+          email: string
+          full_name: string
+        }[]
       }
     }
     Enums: {

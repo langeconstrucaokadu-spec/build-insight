@@ -14,6 +14,10 @@ import Reports from "./pages/Reports.tsx";
 import Schedule from "./pages/Schedule.tsx";
 import Gallery from "./pages/Gallery.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import PortalLogin from "./pages/portal/PortalLogin.tsx";
+import PortalHome from "./pages/portal/PortalHome.tsx";
+import PortalProject from "./pages/portal/PortalProject.tsx";
+import ClientPortalAdmin from "./pages/ClientPortalAdmin.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +43,11 @@ const App = () => (
           <Route path="/cronograma" element={<Schedule />} />
           <Route path="/galeria" element={<Gallery />} />
           <Route path="/permissoes" element={<PermissionManagement />} />
+          <Route path="/clientes-portal" element={<ClientPortalAdmin />} />
+          {/* Portal externo (clientes) */}
+          <Route path="/portal/login" element={<PortalLogin />} />
+          <Route path="/portal" element={<PortalHome />} />
+          <Route path="/portal/obra/:id" element={<PortalProject />} />
           {/* Compat: rotas antigas */}
           <Route path="/obra/:id" element={<RedirectWithId to={(id) => `/obras/${id}`} />} />
           <Route path="/obra/:id/relatorios/novo" element={<RedirectWithId to={(id) => `/obras/${id}/relatorios/novo`} />} />
