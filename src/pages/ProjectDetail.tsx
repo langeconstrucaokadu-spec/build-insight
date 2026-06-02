@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { CalendarDays, Edit, FileText, ImageIcon, Info, Loader2, MapPin, Plus, Trash2, Upload } from "lucide-react";
+import { CalendarDays, Download, Edit, FileText, ImageIcon, Info, Loader2, MapPin, Plus, Trash2, Upload } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaVi
 import MediaUploadDialog from "@/components/modals/MediaUploadDialog";
 import ProjectMediaGrid from "@/components/project/ProjectMediaGrid";
 import HierarchyFilters, { emptyHierarchyFilter, type HierarchyFilterValue } from "@/components/project/HierarchyFilters";
+import { exportScheduleXlsx } from "@/lib/exportSchedule";
 import { toast } from "sonner";
 
 type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
@@ -253,6 +254,21 @@ const ProjectDetail = () => {
             ))}</div>
           </TabsContent>
           <TabsContent value="schedule" className="dashboard-panel mt-5">
+            {project && (
+              <div className="panel-head">
+                <h2>Cronograma da obra</h2>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  try {
+                    await exportScheduleXlsx(project, categories, subcategories, items);
+                    toast.success("Cronograma exportado.");
+                  } catch (e) {
+                    toast.error((e as Error).message ?? "Falha ao exportar.");
+                  }
+                }}>
+                  <Download className="size-4" /> Exportar Cronograma
+                </Button>
+              </div>
+            )}
             {project ? (
                 <ScheduleHierarchy projectId={project.id} isAdmin={isAdmin} refreshKey={scheduleRefresh} />
             ) : (
