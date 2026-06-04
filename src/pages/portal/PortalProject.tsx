@@ -26,7 +26,11 @@ const PortalProject = () => {
   const [media, setMedia] = useState<Media[]>([]);
 
   useEffect(() => {
-    if (!portalAuth.token) { navigate("/portal/login"); return; }
+    if (!portalAuth.token) {
+      const back = window.location.pathname + window.location.hash;
+      navigate(`/portal/login?redirect=${encodeURIComponent(back)}`);
+      return;
+    }
     if (!id) return;
     portalApi.project(id)
       .then((d) => {
@@ -40,6 +44,19 @@ const PortalProject = () => {
       .catch((e) => { toast.error((e as Error).message); navigate("/portal"); })
       .finally(() => setLoading(false));
   }, [id, navigate]);
+
+  // Após carregar dados, rola até a âncora (#cat-..., #sub-..., #item-...) se presente
+  useEffect(() => {
+    if (loading) return;
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.classList.add("ring-2", "ring-primary");
+      setTimeout(() => el.classList.remove("ring-2", "ring-primary"), 2500);
+    }
+  }, [loading]);
 
   const tree = useMemo(() => categories.map((c) => ({
     ...c,
@@ -72,11 +89,11 @@ const PortalProject = () => {
         {project.description && <p className="dashboard-panel text-sm text-muted-foreground">{project.description}</p>}
 
         {tree.map((c) => (
-          <article key={c.id} className="dashboard-panel">
+          <article key={c.id} id={`cat-${c.id}`} className="dashboard-panel scroll-mt-24">
             <h2 className="font-display text-xl font-bold">{c.name}</h2>
             {c.looseItems.map((it) => <ItemBlock key={it.id} item={it} reports={reports} media={media} />)}
             {c.subs.map((s) => (
-              <div key={s.id} className="mt-4">
+              <div key={s.id} id={`sub-${s.id}`} className="mt-4 scroll-mt-24">
                 <h3 className="font-display text-base font-semibold text-muted-foreground">{s.name}</h3>
                 {s.items.length === 0 && <p className="text-xs text-muted-foreground">Sem itens.</p>}
                 {s.items.map((it) => <ItemBlock key={it.id} item={it} reports={reports} media={media} />)}
@@ -94,7 +111,7 @@ const ItemBlock = ({ item, reports, media }: { item: Item; reports: Report[]; me
   const itemReports = reports.filter((r) => r.item_id === item.id);
   const itemMedia = media.filter((m) => m.item_id === item.id);
   return (
-    <div className="mt-3 rounded-md border border-border p-4">
+    <div id={`item-${item.id}`} className="mt-3 rounded-md border border-border p-4 scroll-mt-24">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <strong>{item.name}</strong>
         <span className="status-pill">{statusLabel[item.status] ?? item.status}</span>
