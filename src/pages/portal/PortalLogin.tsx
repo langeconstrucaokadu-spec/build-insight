@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { portalApi, portalAuth } from "@/lib/clientPortal";
 import { toast } from "sonner";
 
 const PortalLogin = () => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const rawRedirect = params.get("redirect") ?? "";
+  // Segurança: só aceita redirect interno do portal do cliente
+  const safeRedirect = rawRedirect.startsWith("/portal/") || rawRedirect === "/portal"
+    ? rawRedirect
+    : "/portal";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +23,7 @@ const PortalLogin = () => {
       const { token, user } = await portalApi.login(email, password);
       portalAuth.save(token, user);
       toast.success(`Bem-vindo, ${user.full_name}.`);
-      navigate("/portal");
+      navigate(safeRedirect);
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
