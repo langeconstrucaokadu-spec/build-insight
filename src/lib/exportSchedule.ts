@@ -38,6 +38,17 @@ const maxDate = (xs: (string | null | undefined)[]) => {
 const border = { style: "thin" as const, color: { argb: "FFBFBFBF" } };
 const allBorders = { top: border, left: border, bottom: border, right: border };
 
+// Gera link inteligente que força login no Portal do Cliente e redireciona à âncora
+const portalLink = (projectId: string, anchor?: string) => {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const target = `/portal/obra/${projectId}${anchor ? `#${anchor}` : ""}`;
+  return `${origin}/portal/login?redirect=${encodeURIComponent(target)}`;
+};
+const setHyperlink = (cell: ExcelJS.Cell, text: string, url: string) => {
+  cell.value = { text, hyperlink: url, tooltip: "Requer login no Portal do Cliente" };
+  cell.font = { ...(cell.font ?? {}), underline: true, color: { argb: "FF0563C1" } };
+};
+
 export async function exportScheduleXlsx(
   project: Project,
   categories: Category[],
@@ -103,6 +114,9 @@ export async function exportScheduleXlsx(
   setLabel(ws.getCell("A3"), "OBRA:");
   ws.mergeCells("B3:C3");
   setValue(ws.getCell("B3"), project.name);
+  // Link "Acompanhar Obra" exige login no Portal do Cliente
+  setHyperlink(ws.getCell("B3"), project.name, portalLink(project.id));
+  ws.getCell("B3").alignment = { vertical: "middle", horizontal: "center" };
   setLabel(ws.getCell("D3"), "DATA DA ATUALIZAÇÃO");
   ws.mergeCells("E3:F3");
   setValue(ws.getCell("E3"), fmtDate(project.last_activity_at), true);
@@ -190,6 +204,12 @@ export async function exportScheduleXlsx(
     });
     catRow.getCell(2).alignment = { vertical: "middle", horizontal: "left", indent: 1 };
     [3, 5, 6, 8].forEach((i) => (catRow.getCell(i).numFmt = "dd/mm/yyyy"));
+    // Link para categoria
+    {
+      const c = catRow.getCell(2);
+      c.value = { text: cat.name.toUpperCase(), hyperlink: portalLink(project.id, `cat-${cat.id}`), tooltip: "Abrir categoria (requer login)" };
+      c.font = { bold: true, color: { argb: HEADER_TEXT }, underline: true };
+    }
 
     const subs = subcategories.filter((s) => s.category_id === cat.id).sort((a, b) => a.name.localeCompare(b.name, "pt"));
     let subIdx = 0;
@@ -215,6 +235,12 @@ export async function exportScheduleXlsx(
         });
         row.getCell(2).alignment = { vertical: "middle", horizontal: "left", indent: 2 };
         row.getCell(9).alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+        // Link para item
+        {
+          const c = row.getCell(2);
+          c.value = { text: it.name, hyperlink: portalLink(project.id, `item-${it.id}`), tooltip: "Abrir item (requer login)" };
+          c.font = { color: { argb: "FF0563C1" }, underline: true };
+        }
         [3, 5].forEach((i) => {
           row.getCell(i).numFmt = "dd/mm/yyyy";
           row.getCell(i).fill = { type: "pattern", pattern: "solid", fgColor: { argb: YELLOW } };
@@ -258,6 +284,12 @@ export async function exportScheduleXlsx(
       });
       subRow.getCell(2).alignment = { vertical: "middle", horizontal: "left", indent: 1 };
       [3, 5, 6, 8].forEach((i) => (subRow.getCell(i).numFmt = "dd/mm/yyyy"));
+      // Link para subcategoria
+      {
+        const c = subRow.getCell(2);
+        c.value = { text: sub.name.toUpperCase(), hyperlink: portalLink(project.id, `sub-${sub.id}`), tooltip: "Abrir subcategoria (requer login)" };
+        c.font = { bold: true, color: { argb: "FF0563C1" }, underline: true };
+      }
       renderItems(subItems);
     }
   }
