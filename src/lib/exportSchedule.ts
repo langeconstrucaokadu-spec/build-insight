@@ -106,7 +106,7 @@ export async function exportScheduleXlsx(
   };
 
   // Linha 1: título
-  ws.mergeCells("A1:I1");
+  safeMergeCells(ws, "A1:I1");
   const title = ws.getCell("A1");
   title.value = "Núcleo de Obras e Infraestruturas";
   title.font = { bold: true, italic: true, size: 16, color: { argb: PINK } };
@@ -115,12 +115,12 @@ export async function exportScheduleXlsx(
 
   // Linha 2: Unidade / Data do preenchimento
   setLabel(ws.getCell("A2"), "UNIDADE:");
-  ws.mergeCells("B2:C2");
+  safeMergeCells(ws, "B2:C2");
   setValue(ws.getCell("B2"), project.unit ?? "");
   setLabel(ws.getCell("D2"), "DATA DO PREENCHIMENTO");
-  ws.mergeCells("E2:F2");
+  safeMergeCells(ws, "E2:F2");
   setValue(ws.getCell("E2"), fmtDate(project.filled_at), true);
-  ws.mergeCells("G2:I2");
+  safeMergeCells(ws, "G2:I2");
   setLabel(ws.getCell("G2"), "OBSERVAÇÕES E JUSTIFICATIVAS");
   ws.getCell("G2").alignment = { vertical: "middle", horizontal: "center", wrapText: true };
   ws.getCell("G2").fill = { type: "pattern", pattern: "solid", fgColor: { argb: PINK } };
@@ -128,23 +128,25 @@ export async function exportScheduleXlsx(
 
   // Linha 3: Obra / Data da atualização
   setLabel(ws.getCell("A3"), "OBRA:");
-  ws.mergeCells("B3:C3");
+  safeMergeCells(ws, "B3:C3");
   setValue(ws.getCell("B3"), project.name);
   // Link "Acompanhar Obra" exige login no Portal do Cliente
   setHyperlink(ws.getCell("B3"), project.name, portalLink(project.id));
   ws.getCell("B3").alignment = { vertical: "middle", horizontal: "center" };
   setLabel(ws.getCell("D3"), "DATA DA ATUALIZAÇÃO");
-  ws.mergeCells("E3:F3");
+  safeMergeCells(ws, "E3:F3");
   setValue(ws.getCell("E3"), fmtDate(project.last_activity_at), true);
-  ws.mergeCells("G3:I6");
-  const obsCell = ws.getCell("G3");
+  // Observação ocupa apenas H3:I6 para não colidir com as datas em G4/G5
+  // e com o merge D6:G6 (que antes sobrepunha G6 -> "Cannot merge already merged cells").
+  safeMergeCells(ws, "H3:I6");
+  const obsCell = ws.getCell("H3");
   obsCell.value = project.observation ?? "";
   obsCell.alignment = { vertical: "top", horizontal: "left", wrapText: true };
   obsCell.border = allBorders;
 
   // Linha 4: Empreiteiro (location) / Início estimado + Término estimado
   setLabel(ws.getCell("A4"), "EMPREITEIRO:");
-  ws.mergeCells("B4:C4");
+  safeMergeCells(ws, "B4:C4");
   setValue(ws.getCell("B4"), project.location ?? "");
   setLabel(ws.getCell("D4"), "INÍCIO ESTIMADO:");
   setValue(ws.getCell("E4"), fmtDate(project.start_date), true);
@@ -158,16 +160,16 @@ export async function exportScheduleXlsx(
   setValue(ws.getCell("E5"), fmtDate(actualStart), true);
   setLabel(ws.getCell("F5"), "TÉRMINO REAL:");
   setValue(ws.getCell("G5"), fmtDate(actualEnd), true);
-  ws.mergeCells("A5:C6");
+  safeMergeCells(ws, "A5:C6");
   ws.getCell("A5").border = allBorders;
-  ws.mergeCells("D6:G6");
+  safeMergeCells(ws, "D6:G6");
 
   // ===== Tabela: header row 7 e 8 =====
-  ws.mergeCells("A7:A8");
-  ws.mergeCells("B7:B8");
-  ws.mergeCells("C7:E7");
-  ws.mergeCells("F7:H7");
-  ws.mergeCells("I7:I8");
+  safeMergeCells(ws, "A7:A8");
+  safeMergeCells(ws, "B7:B8");
+  safeMergeCells(ws, "C7:E7");
+  safeMergeCells(ws, "F7:H7");
+  safeMergeCells(ws, "I7:I8");
 
   const headerStyle = (cell: ExcelJS.Cell, text: string, color: string) => {
     cell.value = text;
