@@ -181,6 +181,80 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_categories_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_items: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company: string | null
@@ -239,6 +313,67 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_categories_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_financial_costs: {
+        Row: {
+          amount: number
+          buyer: string
+          created_at: string
+          created_by: string | null
+          date: string
+          financial_category_id: string
+          financial_item_id: string
+          id: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer: string
+          created_at?: string
+          created_by?: string | null
+          date: string
+          financial_category_id: string
+          financial_item_id: string
+          id?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer?: string
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          financial_category_id?: string
+          financial_item_id?: string
+          id?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_financial_costs_financial_category_id_fkey"
+            columns: ["financial_category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_financial_costs_financial_item_id_fkey"
+            columns: ["financial_item_id"]
+            isOneToOne: false
+            referencedRelation: "financial_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_financial_costs_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
