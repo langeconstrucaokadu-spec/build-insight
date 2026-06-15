@@ -114,7 +114,7 @@ export const FinancialCostFormDialog = ({ open, onOpenChange, projectId, cost, o
         financial_item_id: itemId,
         date: form.date,
         buyer: form.buyer.trim(),
-        amount: (form.amountCents / 100).toFixed(2),
+        amount: form.amountCents / 100,
         created_by: userId,
       };
 
