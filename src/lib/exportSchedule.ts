@@ -38,6 +38,22 @@ const maxDate = (xs: (string | null | undefined)[]) => {
 const border = { style: "thin" as const, color: { argb: "FFBFBFBF" } };
 const allBorders = { top: border, left: border, bottom: border, right: border };
 
+// Mescla com segurança: verifica antes nas mesclagens já existentes do worksheet
+// e, como fallback, ignora apenas o erro específico de "already merged".
+const safeMergeCells = (ws: ExcelJS.Worksheet, range: string) => {
+  // ExcelJS expõe internamente um mapa de merges; checamos para evitar mascarar erros reais
+  const merges = (ws as unknown as { _merges?: Record<string, unknown> })._merges ?? {};
+  if (Object.prototype.hasOwnProperty.call(merges, range)) return;
+  try {
+    ws.mergeCells(range);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (!msg.toLowerCase().includes("already merged") && !msg.toLowerCase().includes("merge")) {
+      throw error;
+    }
+  }
+};
+
 // Gera link inteligente que força login no Portal do Cliente e redireciona à âncora
 const portalLink = (projectId: string, anchor?: string) => {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
