@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { CalendarDays, Download, Edit, FileText, ImageIcon, Info, Loader2, MapPin, Plus, Trash2, Upload } from "lucide-react";
+import { CalendarDays, Download, Edit, FileText, ImageIcon, Info, Loader2, MapPin, Plus, Trash2, Upload, Wallet } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ import MediaViewerDialog, { type MediaFilter } from "@/components/modals/MediaVi
 import MediaUploadDialog from "@/components/modals/MediaUploadDialog";
 import ProjectMediaGrid from "@/components/project/ProjectMediaGrid";
 import HierarchyFilters, { emptyHierarchyFilter, type HierarchyFilterValue } from "@/components/project/HierarchyFilters";
+import FinancialPanel from "@/components/project/FinancialPanel";
 import { exportScheduleXlsx } from "@/lib/exportSchedule";
 import { toast } from "sonner";
 
@@ -194,11 +195,12 @@ const ProjectDetail = () => {
         </section>
 
         <Tabs defaultValue="overview" className="mt-2">
-          <TabsList className="grid h-auto w-full grid-cols-2 gap-2 bg-transparent p-0 lg:grid-cols-4">
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-2 bg-transparent p-0 lg:grid-cols-5">
             <TabsTrigger className="tab-trigger" value="overview"><Info className="size-4" /> Visão geral</TabsTrigger>
             <TabsTrigger className="tab-trigger" value="reports"><FileText className="size-4" /> Relatórios</TabsTrigger>
             <TabsTrigger className="tab-trigger" value="schedule"><CalendarDays className="size-4" /> Cronograma</TabsTrigger>
             <TabsTrigger className="tab-trigger" value="media"><ImageIcon className="size-4" /> Galeria</TabsTrigger>
+            <TabsTrigger className="tab-trigger" value="financial"><Wallet className="size-4" /> Financeiro</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="dashboard-panel mt-5"><h2>Informações da obra</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><p><strong>Etapa atual:</strong> {"current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage}</p><p><strong>Localização:</strong> {currentProject.location}</p><p><strong>Início:</strong> {"start_date" in currentProject ? currentProject.start_date || "A definir" : "2026-01-10"}</p><p><strong>Entrega prevista:</strong> {"estimated_delivery_date" in currentProject ? currentProject.estimated_delivery_date || "A definir" : "2026-10-15"}</p></div></TabsContent>
           <TabsContent value="reports" className="dashboard-panel mt-5">
@@ -291,6 +293,13 @@ const ProjectDetail = () => {
               <ProjectMediaGrid projectId={project.id} refreshKey={galleryRefresh} filter={{ categoryId: galleryFilters.categoryId, subcategoryId: galleryFilters.subcategoryId, itemId: galleryFilters.itemId, date: galleryFilters.date }} />
             ) : (
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Fundação", "Estrutura", "Instalações", "Acabamento"].map((stage) => <div key={stage} className="media-tile"><ImageIcon className="size-7" /><span>{stage}</span><small>Filtro por etapa</small></div>)}</div>
+            )}
+          </TabsContent>
+          <TabsContent value="financial" className="dashboard-panel mt-5">
+            {project ? (
+              <FinancialPanel projectId={project.id} canManage={isAdmin} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Carregue uma obra real para gerenciar o controle financeiro.</p>
             )}
           </TabsContent>
         </Tabs>
