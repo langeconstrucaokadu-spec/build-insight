@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Edit, Plus, Trash2, Wallet } from "lucide-react";
+import { Edit, Plus, Trash2, Wallet, TrendingUp, Receipt, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -20,6 +20,9 @@ export const FinancialPanel = ({ projectId, canManage }: Props) => {
   const [cats, setCats] = useState<FCategory[]>([]);
   const [items, setItems] = useState<FItem[]>([]);
   const [filterCat, setFilterCat] = useState("all");
+  const [filterBuyer, setFilterBuyer] = useState("all");
+  const [filterStart, setFilterStart] = useState("");
+  const [filterEnd, setFilterEnd] = useState("");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Cost | null>(null);
   const [deleting, setDeleting] = useState<Cost | null>(null);
@@ -40,12 +43,38 @@ export const FinancialPanel = ({ projectId, canManage }: Props) => {
   const catName = (id: string) => cats.find((c) => c.id === id)?.name ?? "—";
   const itemName = (id: string) => items.find((i) => i.id === id)?.name ?? "—";
 
+  const buyers = useMemo(
+    () => Array.from(new Set(costs.map((c) => c.buyer))).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [costs],
+  );
+
   const filtered = useMemo(
-    () => costs.filter((c) => filterCat === "all" || c.financial_category_id === filterCat),
-    [costs, filterCat],
+    () =>
+      costs.filter((c) => {
+        if (filterCat !== "all" && c.financial_category_id !== filterCat) return false;
+        if (filterBuyer !== "all" && c.buyer !== filterBuyer) return false;
+        if (filterStart && c.date < filterStart) return false;
+        if (filterEnd && c.date > filterEnd) return false;
+        return true;
+      }),
+    [costs, filterCat, filterBuyer, filterStart, filterEnd],
   );
 
   const total = useMemo(() => filtered.reduce((acc, c) => acc + Number(c.amount), 0), [filtered]);
+  const grandTotal = useMemo(() => costs.reduce((a, c) => a + Number(c.amount), 0), [costs]);
+
+  const topCategory = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const c of costs) map.set(c.financial_category_id, (map.get(c.financial_category_id) ?? 0) + Number(c.amount));
+    let best: { id: string; total: number } | null = null;
+    for (const [id, v] of map) if (!best || v > best.total) best = { id, total: v };
+    return best;
+  }, [costs]);
+
+  const lastEntry = useMemo(() => {
+    if (costs.length === 0) return null;
+    return [...costs].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))[0];
+  }, [costs]);
 
   const totalsByCategory = useMemo(() => {
     const map = new Map<string, number>();
@@ -74,21 +103,30 @@ export const FinancialPanel = ({ projectId, canManage }: Props) => {
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="metric-card">
-          <span>Total geral</span>
-          <strong className="text-2xl">{brl(costs.reduce((a, c) => a + Number(c.amount), 0))}</strong>
-          <p>{costs.length} lançamento(s)</p>
+          <span className="flex items-center gap-2"><Wallet className="size-4" /> Total gasto</span>
+          <strong className="text-2xl">{brl(grandTotal)}</strong>
+          <p>{costs.length} lançamento(s) no total</p>
         </div>
         <div className="metric-card">
-          <span>Categorias financeiras</span>
-          <strong className="text-2xl">{cats.length}</strong>
-          <p>{items.length} item(ns) cadastrados</p>
+          <span className="flex items-center gap-2"><TrendingUp className="size-4" /> Maior categoria</span>
+          <strong className="text-2xl">{topCategory ? catName(topCategory.id) : "—"}</strong>
+          <p>{topCategory ? brl(topCategory.total) : "Sem lançamentos"}</p>
         </div>
         <div className="metric-card">
-          <span>Filtrado</span>
-          <strong className="text-2xl">{brl(total)}</strong>
-          <p>{filtered.length} lançamento(s)</p>
+          <span className="flex items-center gap-2"><Receipt className="size-4" /> Lançamentos</span>
+          <strong className="text-2xl">{costs.length}</strong>
+          <p>{filtered.length} no filtro atual ({brl(total)})</p>
+        </div>
+        <div className="metric-card">
+          <span className="flex items-center gap-2"><Clock className="size-4" /> Último lançamento</span>
+          <strong className="text-2xl">{lastEntry ? brl(Number(lastEntry.amount)) : "—"}</strong>
+          <p>
+            {lastEntry
+              ? `${new Date(lastEntry.date).toLocaleDateString("pt-BR")} • ${lastEntry.buyer}`
+              : "Sem lançamentos"}
+          </p>
         </div>
       </div>
 
@@ -107,12 +145,36 @@ export const FinancialPanel = ({ projectId, canManage }: Props) => {
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="grid gap-1">
-          <label className="text-xs text-muted-foreground">Filtrar por categoria</label>
+          <label className="text-xs text-muted-foreground">Categoria</label>
           <select className="auth-field" value={filterCat} onChange={(e) => setFilterCat(e.target.value)}>
             <option value="all">Todas</option>
             {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
+        <div className="grid gap-1">
+          <label className="text-xs text-muted-foreground">Quem comprou</label>
+          <select className="auth-field" value={filterBuyer} onChange={(e) => setFilterBuyer(e.target.value)}>
+            <option value="all">Todos</option>
+            {buyers.map((b) => <option key={b} value={b}>{b}</option>)}
+          </select>
+        </div>
+        <div className="grid gap-1">
+          <label className="text-xs text-muted-foreground">Data inicial</label>
+          <input type="date" className="auth-field" value={filterStart} onChange={(e) => setFilterStart(e.target.value)} />
+        </div>
+        <div className="grid gap-1">
+          <label className="text-xs text-muted-foreground">Data final</label>
+          <input type="date" className="auth-field" value={filterEnd} onChange={(e) => setFilterEnd(e.target.value)} />
+        </div>
+        {(filterCat !== "all" || filterBuyer !== "all" || filterStart || filterEnd) && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => { setFilterCat("all"); setFilterBuyer("all"); setFilterStart(""); setFilterEnd(""); }}
+          >
+            Limpar filtros
+          </Button>
+        )}
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border">
