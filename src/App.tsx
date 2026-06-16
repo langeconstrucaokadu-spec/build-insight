@@ -13,6 +13,7 @@ import Works from "./pages/Works.tsx";
 import Reports from "./pages/Reports.tsx";
 import Schedule from "./pages/Schedule.tsx";
 import Gallery from "./pages/Gallery.tsx";
+import Financial from "./pages/Financial.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import PortalLogin from "./pages/portal/PortalLogin.tsx";
 import PortalHome from "./pages/portal/PortalHome.tsx";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/relatorios" element={<Reports />} />
           <Route path="/cronograma" element={<Schedule />} />
           <Route path="/galeria" element={<Gallery />} />
+          <Route path="/financeiro" element={<Financial />} />
           <Route path="/permissoes" element={<PermissionManagement />} />
           <Route path="/clientes-portal" element={<ClientPortalAdmin />} />
           {/* Portal externo (clientes) */}

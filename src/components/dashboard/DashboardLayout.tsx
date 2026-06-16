@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { BarChart3, CalendarDays, FilePlus2, FolderOpen, ImageIcon, Loader2, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import { BarChart3, CalendarDays, FilePlus2, FolderOpen, ImageIcon, Loader2, LogOut, Menu, ShieldCheck, Wallet, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { readUserRole, type AppRole } from "@/lib/permissions";
@@ -21,6 +21,7 @@ const NAV: NavEntry[] = [
   { to: "/relatorios", label: "Relatórios", icon: FilePlus2 },
   { to: "/cronograma", label: "Cronograma", icon: CalendarDays },
   { to: "/galeria", label: "Galeria", icon: ImageIcon },
+  { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/permissoes", label: "Permissões", icon: ShieldCheck, adminOnly: true },
   { to: "/clientes-portal", label: "Portal do Cliente", icon: ShieldCheck, adminOnly: true },
 ];
