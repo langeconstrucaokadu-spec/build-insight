@@ -97,8 +97,8 @@ export const FinancialPanel = ({ projectId, canManage }: Props) => {
       <div className="panel-head">
         <h2>Controle financeiro</h2>
         {canManage && (
-          <Button variant="construction" size="sm" onClick={() => setCreating(true)}>
-            <Plus className="size-4" /> Adicionar custo
+          <Button variant="construction" size="sm" onClick={() => setCreating(true)} aria-label="Adicionar custo">
+            <Plus className="size-4" /> <span className="btn-label">Adicionar custo</span>
           </Button>
         )}
       </div>

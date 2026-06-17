@@ -82,11 +82,11 @@ const ScheduleHierarchy = ({ projectId, isAdmin, refreshKey = 0 }: { projectId: 
         </div>
         {isAdmin && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setManaging(true)}>
-              <FolderTree className="size-4" /> Gerenciar categorias
+            <Button variant="outline" size="sm" onClick={() => setManaging(true)} aria-label="Gerenciar categorias">
+              <FolderTree className="size-4" /> <span className="btn-label">Gerenciar categorias</span>
             </Button>
-            <Button variant="construction" size="sm" onClick={() => setCreating(true)}>
-              <Plus className="size-4" /> Adicionar novo item
+            <Button variant="construction" size="sm" onClick={() => setCreating(true)} aria-label="Adicionar novo item">
+              <Plus className="size-4" /> <span className="btn-label">Adicionar novo item</span>
             </Button>
           </div>
         )}
