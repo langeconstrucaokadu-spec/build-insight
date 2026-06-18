@@ -267,7 +267,7 @@ const ProjectDetail = () => {
                     toast.error((e as Error).message ?? "Falha ao exportar.");
                   }
                 }}>
-                  <Download className="size-4" /> <span className="btn-label">Exportar Cronograma</span>
+                  <Download className="size-4" /> <span className="btn-label"></span>
                 </Button>
               </div>
             )}
