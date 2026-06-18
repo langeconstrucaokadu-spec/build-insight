@@ -65,7 +65,7 @@ const SchedulePage = () => {
       kicker="Etapas planejadas"
     >
       <section className="dashboard-panel">
-        <div className="grid gap-4 md:grid-cols-[1.2fr_1fr_1fr_1fr_140px]">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto]">
           <select className="auth-field" value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)}>
             <option value="all">Todas as obras</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -79,9 +79,9 @@ const SchedulePage = () => {
           </select>
           <input className="auth-field" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           <input className="auth-field" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-          <div className="flex gap-2">
-            <Button type="button" size="sm" variant={view === "list" ? "construction" : "outline"} onClick={() => setView("list")}><List className="size-4" /></Button>
-            <Button type="button" size="sm" variant={view === "timeline" ? "construction" : "outline"} onClick={() => setView("timeline")}><GanttChart className="size-4" /></Button>
+          <div className="flex gap-2 sm:col-span-2 lg:col-span-1 lg:justify-end">
+            <Button type="button" size="sm" variant={view === "list" ? "construction" : "outline"} onClick={() => setView("list")} aria-label="Visualizar como lista"><List className="size-4" /></Button>
+            <Button type="button" size="sm" variant={view === "timeline" ? "construction" : "outline"} onClick={() => setView("timeline")} aria-label="Visualizar como timeline"><GanttChart className="size-4" /></Button>
           </div>
         </div>
       </section>
@@ -90,16 +90,16 @@ const SchedulePage = () => {
         <section className="grid gap-3">
           {filtered.map((item) => (
             <div key={item.id} className="schedule-row">
-              <div>
+              <div className="min-w-0">
                 <strong>{item.stage}</strong>
                 <p>{projectName(item.project_id)} · {item.planned_start_date} → {item.planned_end_date}</p>
               </div>
-              <span className="status-pill">{scheduleLabels[item.status]}</span>
-              <div className="flex items-center gap-3">
-                <div className="min-w-28 flex-1"><div className="h-2 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${item.progress}%` }} /></div><p className="mt-1 text-right text-xs font-bold text-muted-foreground">{item.progress}%</p></div>
+              <span className="status-pill shrink-0">{scheduleLabels[item.status]}</span>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="min-w-[120px] flex-1"><div className="h-2 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${item.progress}%` }} /></div><p className="mt-1 text-right text-xs font-bold text-muted-foreground">{item.progress}%</p></div>
                 {isAdmin && <>
-                  <Button size="icon" variant="outline" onClick={() => setEditing(item)}><Edit className="size-3" /></Button>
-                  <Button size="icon" variant="outline" onClick={() => setDeleting(item)}><Trash2 className="size-3" /></Button>
+                  <Button size="icon" variant="outline" onClick={() => setEditing(item)} aria-label="Editar etapa"><Edit className="size-3" /></Button>
+                  <Button size="icon" variant="outline" onClick={() => setDeleting(item)} aria-label="Excluir etapa"><Trash2 className="size-3" /></Button>
                 </>}
               </div>
             </div>

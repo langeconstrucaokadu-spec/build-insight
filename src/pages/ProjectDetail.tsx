@@ -179,15 +179,15 @@ const ProjectDetail = () => {
       kicker="Página da obra"
       actions={isAdmin && project ? (
         <>
-          <Button variant="outline" onClick={() => setEditProject(true)}><Edit className="size-4" /> Editar</Button>
-          <Button variant="outline" onClick={() => setDeleteProject(true)}><Trash2 className="size-4" /> Excluir</Button>
+          <Button variant="outline" onClick={() => setEditProject(true)} aria-label="Editar obra"><Edit className="size-4" /> <span className="btn-label">Editar</span></Button>
+          <Button variant="outline" onClick={() => setDeleteProject(true)} aria-label="Excluir obra"><Trash2 className="size-4" /> <span className="btn-label">Excluir</span></Button>
         </>
       ) : null}
     >
         <section className="rounded-lg border border-border bg-card p-6 shadow-elevated lg:p-8">
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
             <div><p className="section-kicker">Página individual da obra</p><h1 className="mt-2 font-display text-4xl font-bold md:text-5xl">{currentProject.name}</h1><p className="mt-3 flex items-center gap-2 text-muted-foreground"><MapPin className="size-4" /> {currentProject.location}</p></div>
-          <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[displayStatus]}</span>{isAdmin && <Button asChild variant="construction"><Link to={`/obra/${currentProject.id}/relatorios/novo`}><Upload className="size-4" /> Enviar relatório</Link></Button>}</div>
+          <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[displayStatus]}</span>{isAdmin && <Button asChild variant="construction"><Link to={`/obra/${currentProject.id}/relatorios/novo`} aria-label="Enviar relatório"><Upload className="size-4" /> <span className="btn-label">Enviar relatório</span></Link></Button>}</div>
           </div>
           <p className="mt-6 max-w-3xl leading-7 text-muted-foreground">{currentProject.description}</p>
           <div className="mt-7 grid gap-4 md:grid-cols-3"><div className="metric-card"><span>Status atual</span><strong className="text-2xl">{statusLabels[displayStatus]}</strong><p>{displayStage}</p></div><div className="metric-card"><span>Progresso</span><strong className="text-2xl">{progress}%</strong><p>{computed.done}/{computed.total} itens finalizados</p></div><div className="metric-card"><span>Relatórios</span><strong className="text-2xl">{reportCount}</strong><p>atualizações registradas</p></div></div>
@@ -204,7 +204,7 @@ const ProjectDetail = () => {
           </TabsList>
           <TabsContent value="overview" className="dashboard-panel mt-5"><h2>Informações da obra</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><p><strong>Etapa atual:</strong> {"current_stage" in currentProject ? currentProject.current_stage : currentProject.currentStage}</p><p><strong>Localização:</strong> {currentProject.location}</p><p><strong>Início:</strong> {"start_date" in currentProject ? currentProject.start_date || "A definir" : "2026-01-10"}</p><p><strong>Entrega prevista:</strong> {"estimated_delivery_date" in currentProject ? currentProject.estimated_delivery_date || "A definir" : "2026-10-15"}</p></div></TabsContent>
           <TabsContent value="reports" className="dashboard-panel mt-5">
-            <div className="panel-head"><h2>Relatórios cronológicos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setCreatingReport(true)}><Plus className="size-4" /> Criar relatório</Button>}</div>
+            <div className="panel-head"><h2>Relatórios cronológicos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setCreatingReport(true)} aria-label="Criar relatório"><Plus className="size-4" /> <span className="btn-label">Criar relatório</span></Button>}</div>
             {project && (
               <HierarchyFilters
                 categories={categories}
@@ -259,7 +259,7 @@ const ProjectDetail = () => {
             {project && (
               <div className="panel-head">
                 <h2>Cronograma da obra</h2>
-                <Button variant="outline" size="sm" onClick={async () => {
+                <Button variant="outline" size="sm" aria-label="Exportar cronograma" onClick={async () => {
                   try {
                     await exportScheduleXlsx(project, categories, subcategories, items);
                     toast.success("Cronograma exportado.");
@@ -267,7 +267,7 @@ const ProjectDetail = () => {
                     toast.error((e as Error).message ?? "Falha ao exportar.");
                   }
                 }}>
-                  <Download className="size-4" /> Exportar Cronograma
+                  <Download className="size-4" /> <span className="btn-label">Exportar Cronograma</span>
                 </Button>
               </div>
             )}
@@ -278,7 +278,7 @@ const ProjectDetail = () => {
             )}
           </TabsContent>
           <TabsContent value="media" className="dashboard-panel mt-5">
-            <div className="panel-head"><h2>Biblioteca de fotos e vídeos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setUploadingMedia(true)}><Upload className="size-4" /> Subir fotos</Button>}</div>
+            <div className="panel-head"><h2>Biblioteca de fotos e vídeos</h2>{isAdmin && project && <Button variant="construction" size="sm" onClick={() => setUploadingMedia(true)} aria-label="Subir fotos"><Upload className="size-4" /> <span className="btn-label">Subir fotos</span></Button>}</div>
             {project && (
               <HierarchyFilters
                 categories={categories}

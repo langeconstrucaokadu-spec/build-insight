@@ -143,30 +143,30 @@ const Financial = () => {
       kicker="Visão consolidada"
       title="Financeiro"
     >
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <div className="metric-card">
           <span className="flex items-center gap-2"><Wallet className="size-4" /> Total gasto geral</span>
-          <strong className="text-2xl">{brl(totalGeneral)}</strong>
+          <strong className="text-xl sm:text-2xl">{brl(totalGeneral)}</strong>
           <p>{filtered.length} lançamento(s)</p>
         </div>
         <div className="metric-card">
           <span className="flex items-center gap-2"><Building2 className="size-4" /> Obras com custos</span>
-          <strong className="text-2xl">{projectsWithCosts}</strong>
+          <strong className="text-xl sm:text-2xl">{projectsWithCosts}</strong>
           <p>de {projects.length} obras cadastradas</p>
         </div>
         <div className="metric-card">
           <span className="flex items-center gap-2"><TrendingUp className="size-4" /> Obra com maior custo</span>
-          <strong className="text-lg">{topProject ? topProject.name : "—"}</strong>
+          <strong className="text-base sm:text-lg">{topProject ? topProject.name : "—"}</strong>
           <p>{topProject ? brl(topProject.total) : "Sem lançamentos"}</p>
         </div>
         <div className="metric-card">
           <span className="flex items-center gap-2"><Layers className="size-4" /> Categoria líder</span>
-          <strong className="text-lg">{topCategory ? topCategory.name : "—"}</strong>
+          <strong className="text-base sm:text-lg">{topCategory ? topCategory.name : "—"}</strong>
           <p>{topCategory ? brl(topCategory.total) : "Sem lançamentos"}</p>
         </div>
         <div className="metric-card">
           <span className="flex items-center gap-2"><BarChart3 className="size-4" /> Média por obra</span>
-          <strong className="text-2xl">{brl(avgPerProject)}</strong>
+          <strong className="text-xl sm:text-2xl">{brl(avgPerProject)}</strong>
           <p>Considerando obras com custos</p>
         </div>
       </div>
@@ -288,8 +288,8 @@ const Financial = () => {
                   <td className="px-3 py-2">
                     {can && (
                       <div className="flex justify-end gap-1">
-                        <Button size="icon" variant="outline" onClick={() => setEditing(c)}><Edit className="size-3" /></Button>
-                        <Button size="icon" variant="outline" onClick={() => setDeleting(c)}><Trash2 className="size-3" /></Button>
+                <Button size="icon" variant="outline" onClick={() => setEditing(c)} aria-label="Editar custo"><Edit className="size-3" /></Button>
+                <Button size="icon" variant="outline" onClick={() => setDeleting(c)} aria-label="Excluir custo"><Trash2 className="size-3" /></Button>
                       </div>
                     )}
                   </td>

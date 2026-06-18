@@ -95,19 +95,19 @@ export const DashboardLayout = ({ children, title, kicker, actions }: DashboardL
       )}
 
       <section className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-border bg-dashboard/90 px-5 py-4 backdrop-blur-xl lg:px-8">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Button size="icon" variant="outline" className="lg:hidden" onClick={() => setMobileOpen(true)}><Menu className="size-5" /></Button>
-              <div>
+        <header className="sticky top-0 z-30 border-b border-border bg-dashboard/90 px-4 py-4 backdrop-blur-xl sm:px-5 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button size="icon" variant="outline" className="lg:hidden shrink-0" onClick={() => setMobileOpen(true)} aria-label="Abrir menu"><Menu className="size-5" /></Button>
+              <div className="min-w-0">
                 {kicker && <p className="section-kicker">{kicker}</p>}
-                <h1 className="font-display text-2xl font-bold md:text-3xl">{title}</h1>
+                <h1 className="font-display text-xl font-bold sm:text-2xl md:text-3xl break-words" style={{ overflowWrap: "anywhere" }}>{title}</h1>
               </div>
             </div>
-            <div className="flex items-center gap-2">{actions}</div>
+            <div className="flex flex-wrap items-center gap-2">{actions}</div>
           </div>
         </header>
-        <div className="mx-auto max-w-7xl space-y-8 px-5 py-8 lg:px-8">{children}</div>
+        <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-5 sm:py-8 sm:space-y-8 lg:px-8">{children}</div>
       </section>
     </main>
   );

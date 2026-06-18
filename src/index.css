@@ -106,22 +106,23 @@
   .status-pill { @apply inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-extrabold text-secondary-foreground; }
   .form-field { @apply w-full rounded-lg border border-background/20 bg-background/10 px-4 py-3 text-background placeholder:text-background/50 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30; }
   .auth-field { @apply w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20; }
-  .metric-card { @apply rounded-lg border border-border bg-card p-5 shadow-soft; }
-  .metric-card span { @apply text-sm font-extrabold uppercase tracking-[0.14em] text-muted-foreground; }
-  .metric-card strong { @apply mt-3 block font-display text-4xl font-bold text-foreground; }
-  .metric-card p { @apply mt-1 text-sm text-muted-foreground; }
-  .dashboard-panel { @apply rounded-lg border border-border bg-card p-6 shadow-soft; }
-  .dashboard-panel h2 { @apply font-display text-2xl font-bold; }
-  .panel-head { @apply flex items-start justify-between gap-4; }
+  .metric-card { @apply min-w-0 overflow-hidden rounded-lg border border-border bg-card p-5 shadow-soft; }
+  .metric-card span { @apply text-sm font-extrabold uppercase tracking-[0.14em] text-muted-foreground break-words; }
+  .metric-card strong { @apply mt-3 block font-display text-3xl font-bold text-foreground break-words; overflow-wrap: anywhere; }
+  .metric-card p { @apply mt-1 text-sm text-muted-foreground break-words; }
+  .dashboard-panel { @apply min-w-0 rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6; }
+  .dashboard-panel h2 { @apply font-display text-xl font-bold sm:text-2xl break-words; overflow-wrap: anywhere; }
+  .panel-head { @apply flex flex-wrap items-start justify-between gap-3 sm:gap-4; }
   .nav-item { @apply flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition hover:bg-muted hover:text-foreground; }
   .nav-active { @apply flex items-center gap-3 rounded-lg bg-primary px-3 py-3 text-primary-foreground shadow-soft; }
-  .timeline-item { @apply relative rounded-lg border border-border bg-background p-5 shadow-soft; }
+  .timeline-item { @apply relative min-w-0 rounded-lg border border-border bg-background p-5 shadow-soft; overflow-wrap: anywhere; }
   .timeline-item span { @apply text-xs font-extrabold uppercase tracking-[0.14em] text-accent; }
-  .timeline-item h3 { @apply mt-2 font-display text-xl font-bold; }
-  .timeline-item p { @apply mt-2 text-muted-foreground; }
-  .schedule-row { @apply grid gap-4 rounded-lg border border-border bg-background p-5 md:grid-cols-[1fr_auto_160px] md:items-center; }
-  .schedule-row strong { @apply font-display text-lg; }
-  .schedule-row p { @apply mt-1 text-sm text-muted-foreground; }
+  .timeline-item h3 { @apply mt-2 font-display text-lg sm:text-xl font-bold break-words; }
+  .timeline-item p { @apply mt-2 text-muted-foreground break-words; }
+  .schedule-row { @apply grid gap-3 rounded-lg border border-border bg-background p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center md:gap-4; }
+  .schedule-row > * { @apply min-w-0; }
+  .schedule-row strong { @apply font-display text-base sm:text-lg break-words; }
+  .schedule-row p { @apply mt-1 text-sm text-muted-foreground break-words; }
   .media-tile { @apply flex aspect-[4/3] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-muted text-muted-foreground transition hover:-translate-y-1 hover:border-primary hover:bg-secondary hover:text-foreground; }
   .media-tile span { @apply font-bold; }
   .media-tile small { @apply text-xs font-semibold; }
@@ -131,11 +132,12 @@
   .upload-dropzone small { @apply text-sm font-semibold text-muted-foreground; }
   .selected-file-row { @apply grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold; }
   .selected-file-row small { @apply text-xs text-muted-foreground; }
-  .media-preview-card { @apply overflow-hidden rounded-lg border border-border bg-background shadow-soft; }
+  .media-preview-card { @apply min-w-0 overflow-hidden rounded-lg border border-border bg-background shadow-soft; }
   .media-preview-card img, .media-preview-card video { @apply aspect-[4/3] w-full bg-muted object-cover; }
   .media-preview-card div { @apply p-4; }
-  .media-preview-card strong { @apply block font-display text-base; }
-  .media-preview-card p { @apply mt-1 text-sm text-muted-foreground; }
+  .media-preview-card strong { @apply block font-display text-base break-words line-clamp-2; overflow-wrap: anywhere; }
+  .media-preview-card p { @apply mt-1 text-sm text-muted-foreground break-words line-clamp-2; }
+  .btn-label { @apply hidden sm:inline; }
 }
 
 .buttonExport {

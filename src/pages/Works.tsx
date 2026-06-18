@@ -56,7 +56,7 @@ const Works = () => {
     <DashboardLayout
       title="Obras"
       kicker="Lista de obras"
-      actions={isAdmin ? <Button variant="construction" onClick={() => setCreating(true)}><Plus className="size-4" /> Nova obra</Button> : null}
+      actions={isAdmin ? <Button variant="construction" onClick={() => setCreating(true)} aria-label="Nova obra"><Plus className="size-4" /> <span className="btn-label">Nova obra</span></Button> : null}
     >
       <section className="dashboard-panel">
         <div className="grid gap-4 md:grid-cols-[1.4fr_1fr_1fr]">
@@ -78,20 +78,20 @@ const Works = () => {
         {filtered.map((project) => (
           <article key={project.id} className="dashboard-panel flex flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="section-kicker">{statusLabels[project.status]}</p>
-                <Link to={`/obras/${project.id}`} className="font-display text-xl font-bold hover:text-primary">{project.name}</Link>
-                <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-3" /> {project.location}</p>
+                <Link to={`/obras/${project.id}`} className="block font-display text-xl font-bold hover:text-primary break-words">{project.name}</Link>
+                <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground break-words"><MapPin className="size-3 shrink-0" /> <span className="break-words">{project.location}</span></p>
               </div>
-              <span className="status-pill">{project.progress}%</span>
+              <span className="status-pill shrink-0">{project.progress}%</span>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-3">{project.description}</p>
             <div className="h-2 rounded-full bg-secondary"><div className="h-full rounded-full bg-progress" style={{ width: `${project.progress}%` }} /></div>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm" variant="secondary"><Link to={`/obras/${project.id}`}>Abrir</Link></Button>
               {isAdmin && <>
-                <Button size="sm" variant="outline" onClick={() => setEditing(project)}><Edit className="size-3" /> Editar</Button>
-                <Button size="sm" variant="outline" onClick={() => setDeleting(project)}><Trash2 className="size-3" /> Excluir</Button>
+                <Button size="sm" variant="outline" onClick={() => setEditing(project)} aria-label="Editar obra"><Edit className="size-3" /> <span className="btn-label">Editar</span></Button>
+                <Button size="sm" variant="outline" onClick={() => setDeleting(project)} aria-label="Excluir obra"><Trash2 className="size-3" /> <span className="btn-label">Excluir</span></Button>
               </>}
             </div>
           </article>
