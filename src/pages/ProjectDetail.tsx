@@ -259,7 +259,7 @@ const ProjectDetail = () => {
             {project && (
               <div className="panel-head">
                 <h2>Cronograma da obra</h2>
-                <Button variant="outline" size="sm" onClick={async () => {
+                <Button className="buttonExport" variant="outline" size="sm" onClick={async () => {
                   try {
                     await exportScheduleXlsx(project, categories, subcategories, items);
                     toast.success("Cronograma exportado.");

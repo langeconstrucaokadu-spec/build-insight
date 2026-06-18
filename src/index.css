@@ -137,3 +137,7 @@
   .media-preview-card strong { @apply block font-display text-base; }
   .media-preview-card p { @apply mt-1 text-sm text-muted-foreground; }
 }
+
+.buttonExport {
+  margin-bottom: 0.5rem;
+}
