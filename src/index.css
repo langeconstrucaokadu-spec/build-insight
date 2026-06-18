@@ -140,6 +140,6 @@
   .btn-label { @apply hidden sm:inline; }
 }
 
-.buttonExport {
+Button[aria-label="Exportar cronograma"] {
   margin-bottom: 0.5rem;
 }
