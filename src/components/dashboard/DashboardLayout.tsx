@@ -19,7 +19,7 @@ const NAV: NavEntry[] = [
   { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/obras", label: "Obras", icon: FolderOpen },
   { to: "/relatorios", label: "Relatórios", icon: FilePlus2 },
-  { to: "/cronograma", label: "Cronograma", icon: CalendarDays },
+  /*{ to: "/cronograma", label: "Cronograma", icon: CalendarDays },*/
   { to: "/galeria", label: "Galeria", icon: ImageIcon },
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
   { to: "/permissoes", label: "Permissões", icon: ShieldCheck, adminOnly: true },

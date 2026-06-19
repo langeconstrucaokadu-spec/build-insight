@@ -142,4 +142,5 @@
 
 Button[aria-label="Exportar cronograma"] {
   margin-bottom: 0.5rem;
+  gap: 0;
 }

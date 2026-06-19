@@ -187,7 +187,8 @@ const ProjectDetail = () => {
         <section className="rounded-lg border border-border bg-card p-6 shadow-elevated lg:p-8">
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
             <div><p className="section-kicker">Página individual da obra</p><h1 className="mt-2 font-display text-4xl font-bold md:text-5xl">{currentProject.name}</h1><p className="mt-3 flex items-center gap-2 text-muted-foreground"><MapPin className="size-4" /> {currentProject.location}</p></div>
-          <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[displayStatus]}</span>{isAdmin && <Button asChild variant="construction"><Link to={`/obra/${currentProject.id}/relatorios/novo`} aria-label="Enviar relatório"><Upload className="size-4" /> <span className="btn-label">Enviar relatório</span></Link></Button>}</div>
+            <div className="flex flex-wrap items-center gap-3"><span className="status-pill w-fit">{statusLabels[displayStatus]}</span>{isAdmin}
+            </div>
           </div>
           <p className="mt-6 max-w-3xl leading-7 text-muted-foreground">{currentProject.description}</p>
           <div className="mt-7 grid gap-4 md:grid-cols-3"><div className="metric-card"><span>Status atual</span><strong className="text-2xl">{statusLabels[displayStatus]}</strong><p>{displayStage}</p></div><div className="metric-card"><span>Progresso</span><strong className="text-2xl">{progress}%</strong><p>{computed.done}/{computed.total} itens finalizados</p></div><div className="metric-card"><span>Relatórios</span><strong className="text-2xl">{reportCount}</strong><p>atualizações registradas</p></div></div>
