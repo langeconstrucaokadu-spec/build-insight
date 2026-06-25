@@ -60,7 +60,6 @@ const PublicSite = () => {
             {navItems.map((item) => <a key={item.href} className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground" href={item.href}>{item.label}</a>)}
           </nav>
           <div className="hidden items-center gap-3 lg:flex">
-            <Button asChild variant="outline"><Link to="/login">Área do cliente</Link></Button>
             <Button asChild variant="construction"><a href="#contato">Solicitar contato</a></Button>
           </div>
           <button className="inline-flex size-11 items-center justify-center rounded-lg border border-border lg:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label="Abrir menu">
@@ -87,7 +86,6 @@ const PublicSite = () => {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-foreground/85 md:text-xl">25 anos construindo obras residenciais e comerciais com qualidade, prazo e total transparência. Acompanhe cada etapa em uma área exclusiva para clientes.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="xl" variant="hero"><a href="#obras">Ver obras em andamento <ArrowRight className="size-5" /></a></Button>
-              <Button asChild size="xl" variant="heroOutline"><Link to="/login">Entrar no sistema</Link></Button>
             </div>
           </div>
         </div>
