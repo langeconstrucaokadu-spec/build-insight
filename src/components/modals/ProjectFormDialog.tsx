@@ -68,7 +68,6 @@ export const ProjectFormDialog = ({ open, onOpenChange, project, onSaved }: Prop
               <input className="auth-field md:col-span-2" required placeholder="Nome da obra" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               <input className="auth-field" placeholder="Unidade" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} />
               <input className="auth-field" required placeholder="Localização" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-              <input className="auth-field" placeholder="Etapa atual" value={form.current_stage} onChange={(e) => setForm({ ...form, current_stage: e.target.value })} />
               <select className="auth-field" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}>
                 <option value="planning">Planejamento</option>
                 <option value="in_progress">Em andamento</option>
