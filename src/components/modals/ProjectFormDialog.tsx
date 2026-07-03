@@ -73,12 +73,15 @@ export const ProjectFormDialog = ({ open, onOpenChange, project, onSaved }: Prop
                 <option value="in_progress">Em andamento</option>
                 <option value="completed">Finalizada</option>
               </select>
-              <label className="text-xs font-semibold text-muted-foreground flex flex-col gap-1">Início estimado
-                <input className="auth-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
-              </label>
-              <label className="text-xs font-semibold text-muted-foreground flex flex-col gap-1">Término estimado
-                <input className="auth-field" type="date" value={form.estimated_delivery_date} onChange={(e) => setForm({ ...form, estimated_delivery_date: e.target.value })} />
-              </label>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground flex flex-col gap-1">Início estimado
+                  <input className="auth-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+                </label>
+                <br></br>
+                <label className="text-xs font-semibold text-muted-foreground flex flex-col gap-1">Término estimado
+                  <input className="auth-field" type="date" value={form.estimated_delivery_date} onChange={(e) => setForm({ ...form, estimated_delivery_date: e.target.value })} />
+                </label>
+              </div>
               <textarea className="auth-field md:col-span-2 min-h-28" required placeholder="Descrição" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               {project && (
                 <div className="md:col-span-2 grid gap-2 md:grid-cols-2 text-xs text-muted-foreground">
