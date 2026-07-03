@@ -9,6 +9,10 @@ type Project = Database["public"]["Tables"]["construction_projects"]["Row"];
 type ProjectStatus = Project["status"];
 
 const empty = { name: "", description: "", location: "", unit: "", status: "planning" as ProjectStatus, current_stage: "", start_date: "", estimated_delivery_date: "", is_public: true, is_portfolio: false };
+const spaceBottom: React.CSSProperties = {
+  display: 'flex',
+  gap: '1rem',
+};
 
 type Props = {
   open: boolean;
@@ -73,11 +77,10 @@ export const ProjectFormDialog = ({ open, onOpenChange, project, onSaved }: Prop
                 <option value="in_progress">Em andamento</option>
                 <option value="completed">Finalizada</option>
               </select>
-              <div>
+              <div style={spaceBottom}>
                 <label className="text-xs font-semibold text-muted-foreground flex flex-col gap-1">Início estimado
                   <input className="auth-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
                 </label>
-                <br></br>
                 <label className="text-xs font-semibold text-muted-foreground flex flex-col gap-1">Término estimado
                   <input className="auth-field" type="date" value={form.estimated_delivery_date} onChange={(e) => setForm({ ...form, estimated_delivery_date: e.target.value })} />
                 </label>
