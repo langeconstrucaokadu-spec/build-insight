@@ -255,6 +255,68 @@ export type Database = {
           },
         ]
       }
+      inventory_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          identifier: string | null
+          is_individually_tracked: boolean
+          location_type: Database["public"]["Enums"]["inventory_location_type"]
+          name: string
+          observation: string | null
+          owner: Database["public"]["Enums"]["inventory_owner"]
+          project_id: string | null
+          quantity: number
+          type: Database["public"]["Enums"]["inventory_item_type"]
+          unit: Database["public"]["Enums"]["inventory_unit"]
+          unit_other: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          identifier?: string | null
+          is_individually_tracked?: boolean
+          location_type?: Database["public"]["Enums"]["inventory_location_type"]
+          name: string
+          observation?: string | null
+          owner?: Database["public"]["Enums"]["inventory_owner"]
+          project_id?: string | null
+          quantity?: number
+          type?: Database["public"]["Enums"]["inventory_item_type"]
+          unit?: Database["public"]["Enums"]["inventory_unit"]
+          unit_other?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          identifier?: string | null
+          is_individually_tracked?: boolean
+          location_type?: Database["public"]["Enums"]["inventory_location_type"]
+          name?: string
+          observation?: string | null
+          owner?: Database["public"]["Enums"]["inventory_owner"]
+          project_id?: string | null
+          quantity?: number
+          type?: Database["public"]["Enums"]["inventory_item_type"]
+          unit?: Database["public"]["Enums"]["inventory_unit"]
+          unit_other?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company: string | null
@@ -832,6 +894,24 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "client"
+      inventory_item_type:
+        | "material"
+        | "ferramenta"
+        | "equipamento"
+        | "epi"
+        | "outros"
+      inventory_location_type: "galpao" | "obra"
+      inventory_owner: "lange" | "contratante"
+      inventory_unit:
+        | "unidade"
+        | "saco"
+        | "caixa"
+        | "litro"
+        | "metro"
+        | "kg"
+        | "m2"
+        | "m3"
+        | "outro"
       item_status: "pendente" | "em_andamento" | "finalizada"
       media_type: "photo" | "video"
       project_status: "planning" | "in_progress" | "completed"
@@ -965,6 +1045,26 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "client"],
+      inventory_item_type: [
+        "material",
+        "ferramenta",
+        "equipamento",
+        "epi",
+        "outros",
+      ],
+      inventory_location_type: ["galpao", "obra"],
+      inventory_owner: ["lange", "contratante"],
+      inventory_unit: [
+        "unidade",
+        "saco",
+        "caixa",
+        "litro",
+        "metro",
+        "kg",
+        "m2",
+        "m3",
+        "outro",
+      ],
       item_status: ["pendente", "em_andamento", "finalizada"],
       media_type: ["photo", "video"],
       project_status: ["planning", "in_progress", "completed"],
